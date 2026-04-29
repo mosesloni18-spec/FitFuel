@@ -1,5 +1,9 @@
 import { Tabs } from "expo-router";
-import React from "react";
+import { Text } from "react-native";
+
+function TabIcon({ icon, color }: { icon: string; color: string }) {
+  return <Text style={{ fontSize: 22, color }}>{icon}</Text>;
+}
 
 export default function TabLayout() {
   return (
@@ -8,13 +12,22 @@ export default function TabLayout() {
         headerShown: false,
         tabBarActiveTintColor: "#11A9D8",
         tabBarInactiveTintColor: "#888",
+        tabBarStyle: {
+          height: 72,
+          paddingBottom: 10,
+          paddingTop: 8,
+        },
+        tabBarLabelStyle: {
+          fontSize: 12,
+          fontWeight: "700",
+        },
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: () => "🏠" as any,
+          tabBarIcon: ({ color }) => <TabIcon icon="🏠" color={color} />,
         }}
       />
 
@@ -22,7 +35,7 @@ export default function TabLayout() {
         name="routines"
         options={{
           title: "Routines",
-          tabBarIcon: () => "📋" as any,
+          tabBarIcon: ({ color }) => <TabIcon icon="📋" color={color} />,
         }}
       />
 
@@ -30,7 +43,7 @@ export default function TabLayout() {
         name="fuel"
         options={{
           title: "Fuel",
-          tabBarIcon: () => "🔥" as any,
+          tabBarIcon: ({ color }) => <TabIcon icon="🔥" color={color} />,
         }}
       />
 
@@ -38,7 +51,7 @@ export default function TabLayout() {
         name="friends"
         options={{
           title: "Friends",
-          tabBarIcon: () => "👤" as any,
+          tabBarIcon: ({ color }) => <TabIcon icon="👤" color={color} />,
         }}
       />
 
@@ -46,7 +59,7 @@ export default function TabLayout() {
         name="setting"
         options={{
           title: "Setting",
-          tabBarIcon: () => "⚙️" as any,
+          tabBarIcon: ({ color }) => <TabIcon icon="⚙️" color={color} />,
         }}
       />
     </Tabs>

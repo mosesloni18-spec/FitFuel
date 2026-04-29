@@ -1,9 +1,10 @@
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-export default function HomeScreen() {
+export default function FuelScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
       <Text style={styles.title}>Welcome back, User!</Text>
+
       <Text style={styles.subtitle}>Climb the leaderboard</Text>
 
       <View style={styles.taskRow}>
@@ -34,10 +35,12 @@ export default function HomeScreen() {
             <Text style={styles.fuelLabel}>Calories</Text>
             <Text style={styles.fuelValue}>250/500 cal</Text>
           </View>
+
           <View>
             <Text style={styles.fuelLabel}>Protein</Text>
             <Text style={styles.fuelValue}>25/50 g</Text>
           </View>
+
           <View>
             <Text style={styles.fuelLabel}>Water</Text>
             <Text style={styles.fuelValue}>1/3 glasses</Text>
@@ -65,14 +68,6 @@ export default function HomeScreen() {
           <Text style={styles.streakSmall}>Next rank on leaderboard</Text>
         </View>
       </View>
-
-      <View style={styles.bottomNav}>
-        <Text style={styles.navActive}>🏠{"\n"}Home</Text>
-        <Text style={styles.nav}>📋{"\n"}Routines</Text>
-        <Text style={styles.nav}>🔥{"\n"}Fuel</Text>
-        <Text style={styles.nav}>👤{"\n"}Friends</Text>
-        <Text style={styles.nav}>⚙️{"\n"}Setting</Text>
-      </View>
     </ScrollView>
   );
 }
@@ -85,18 +80,18 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 70,
     paddingHorizontal: 22,
-    paddingBottom: 30,
+    paddingBottom: 120,
   },
   title: {
-    fontSize: 24,
-    fontWeight: "800",
+    fontSize: 28,
+    fontWeight: "900",
     color: "#192033",
     textAlign: "center",
-    marginBottom: 22,
+    marginBottom: 40,
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 18,
+    fontWeight: "800",
     color: "#222",
     marginBottom: 12,
   },
@@ -116,47 +111,52 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cardTitle: {
-    fontSize: 18,
-    fontWeight: "800",
-    marginBottom: 8,
+    fontSize: 20,
+    fontWeight: "900",
+    marginBottom: 14,
+    color: "#000",
   },
   taskText: {
-    fontSize: 13,
+    fontSize: 15,
     color: "#333",
   },
   emoji: {
-    fontSize: 35,
+    fontSize: 38,
     textAlign: "center",
-    marginTop: 8,
+    marginTop: 14,
+    marginBottom: 8,
   },
   yellowButton: {
-    backgroundColor: "#FFC934",
-    borderRadius: 12,
-    paddingVertical: 7,
+    backgroundColor: "#FFC400",
+    borderRadius: 14,
+    paddingVertical: 10,
     alignItems: "center",
-    marginTop: 6,
+    marginTop: 4,
   },
   blueButton: {
-    backgroundColor: "#20AEEA",
-    borderRadius: 12,
-    paddingVertical: 7,
+    backgroundColor: "#13B2E4",
+    borderRadius: 14,
+    paddingVertical: 10,
     alignItems: "center",
-    marginTop: 6,
+    marginTop: 4,
   },
   buttonText: {
     color: "#FFFFFF",
-    fontWeight: "800",
+    fontWeight: "900",
+    fontSize: 16,
   },
   sectionTitle: {
     textAlign: "center",
-    fontSize: 18,
-    fontWeight: "800",
-    marginVertical: 16,
+    fontSize: 22,
+    fontWeight: "900",
+    marginTop: 28,
+    marginBottom: 18,
+    color: "#000",
   },
   fuelCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 18,
-    padding: 14,
+    padding: 16,
     shadowColor: "#000",
     shadowOpacity: 0.1,
     shadowRadius: 8,
@@ -167,95 +167,79 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   fuelLabel: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#333",
   },
   fuelValue: {
-    fontSize: 13,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "900",
+    color: "#000",
   },
   progressBg: {
-    height: 24,
-    backgroundColor: "#D9EEF7",
+    height: 28,
+    backgroundColor: "#D0EEF7",
     borderRadius: 20,
     overflow: "hidden",
     flexDirection: "row",
-    marginTop: 12,
+    marginTop: 18,
   },
   progressCalories: {
     width: "34%",
-    backgroundColor: "#FFD84D",
+    backgroundColor: "#FFD319",
   },
   progressProtein: {
     width: "33%",
-    backgroundColor: "#C141D9",
+    backgroundColor: "#CF31D8",
   },
   progressWater: {
     width: "24%",
-    backgroundColor: "#16B9E8",
+    backgroundColor: "#10B6D8",
   },
   dots: {
     flexDirection: "row",
     justifyContent: "center",
-    gap: 6,
-    marginVertical: 14,
+    gap: 7,
+    marginVertical: 22,
   },
   dotActive: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: "#9BA6B8",
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
     backgroundColor: "#D0D6E0",
   },
   streakCard: {
     backgroundColor: "#FFFFFF",
     borderRadius: 18,
-    padding: 18,
+    padding: 22,
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    gap: 22,
     shadowColor: "#000",
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 4,
   },
   fire: {
-    fontSize: 48,
+    fontSize: 58,
   },
   streakTitle: {
-    fontSize: 22,
-    fontWeight: "800",
+    fontSize: 26,
+    fontWeight: "900",
+    color: "#000",
   },
   streakText: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#000",
   },
   streakSmall: {
-    fontSize: 13,
+    fontSize: 16,
     color: "#555",
-  },
-  bottomNav: {
-    marginTop: 30,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    paddingVertical: 12,
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  navActive: {
-    textAlign: "center",
-    color: "#11A9D8",
-    fontWeight: "800",
-    fontSize: 12,
-  },
-  nav: {
-    textAlign: "center",
-    color: "#333",
-    fontSize: 12,
   },
 });
