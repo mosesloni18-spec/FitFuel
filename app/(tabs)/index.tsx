@@ -1,77 +1,77 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { router } from "expo-router";
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function HomeScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
       <Text style={styles.title}>Welcome back, User!</Text>
-      <Text style={styles.subtitle}>Climb the leaderboard</Text>
+      <Text style={styles.subtitle}>Your health journey starts today</Text>
+
+      <View style={styles.heroCard}>
+        <Text style={styles.heroEmoji}>🥗</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.heroTitle}>FitFuel</Text>
+          <Text style={styles.heroText}>
+            Track your nutrition, fitness tasks, and daily progress.
+          </Text>
+        </View>
+      </View>
+
+      <Text style={styles.sectionTitle}>Today&apos;s Summary</Text>
+
+      <View style={styles.summaryRow}>
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryEmoji}>🔥</Text>
+          <Text style={styles.summaryValue}>2</Text>
+          <Text style={styles.summaryLabel}>Day Streak</Text>
+        </View>
+
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryEmoji}>⭐</Text>
+          <Text style={styles.summaryValue}>150</Text>
+          <Text style={styles.summaryLabel}>Points</Text>
+        </View>
+
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryEmoji}>💧</Text>
+          <Text style={styles.summaryValue}>1/3</Text>
+          <Text style={styles.summaryLabel}>Water</Text>
+        </View>
+      </View>
+
+      <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+      <TouchableOpacity
+        style={styles.actionCard}
+        onPress={() => router.push("/fuel")}
+      >
+        <View>
+          <Text style={styles.actionTitle}>Open Fuel Page</Text>
+          <Text style={styles.actionText}>
+            View calories, protein, water intake, and progress.
+          </Text>
+        </View>
+        <Text style={styles.arrow}>→</Text>
+      </TouchableOpacity>
 
       <View style={styles.taskRow}>
         <View style={styles.taskCard}>
-          <Text style={styles.cardTitle}>Tasks!</Text>
+          <Text style={styles.cardTitle}>Walking Task</Text>
           <Text style={styles.taskText}>Go for a 10 min walk</Text>
           <Text style={styles.emoji}>🚶</Text>
-          <View style={styles.yellowButton}>
-            <Text style={styles.buttonText}>Go!</Text>
-          </View>
         </View>
 
         <View style={styles.taskCard}>
-          <Text style={styles.cardTitle}>Tasks</Text>
+          <Text style={styles.cardTitle}>Hydration Task</Text>
           <Text style={styles.taskText}>Drink 3 glasses of water</Text>
           <Text style={styles.emoji}>🥤</Text>
-          <View style={styles.blueButton}>
-            <Text style={styles.buttonText}>Track</Text>
-          </View>
         </View>
-      </View>
-
-      <Text style={styles.sectionTitle}>Your Fuel</Text>
-
-      <View style={styles.fuelCard}>
-        <View style={styles.fuelRow}>
-          <View>
-            <Text style={styles.fuelLabel}>Calories</Text>
-            <Text style={styles.fuelValue}>250/500 cal</Text>
-          </View>
-          <View>
-            <Text style={styles.fuelLabel}>Protein</Text>
-            <Text style={styles.fuelValue}>25/50 g</Text>
-          </View>
-          <View>
-            <Text style={styles.fuelLabel}>Water</Text>
-            <Text style={styles.fuelValue}>1/3 glasses</Text>
-          </View>
-        </View>
-
-        <View style={styles.progressBg}>
-          <View style={styles.progressCalories} />
-          <View style={styles.progressProtein} />
-          <View style={styles.progressWater} />
-        </View>
-      </View>
-
-      <View style={styles.dots}>
-        <View style={styles.dotActive} />
-        <View style={styles.dot} />
-        <View style={styles.dot} />
-      </View>
-
-      <View style={styles.streakCard}>
-        <Text style={styles.fire}>🔥</Text>
-        <View>
-          <Text style={styles.streakTitle}>2 Day Streak!</Text>
-          <Text style={styles.streakText}>Points +150</Text>
-          <Text style={styles.streakSmall}>Next rank on leaderboard</Text>
-        </View>
-      </View>
-
-      <View style={styles.bottomNav}>
-        <Text style={styles.navActive}>🏠{"\n"}Home</Text>
-        <Text style={styles.nav}>📋{"\n"}Routines</Text>
-        <Text style={styles.nav}>🔥{"\n"}Fuel</Text>
-        <Text style={styles.nav}>👤{"\n"}Friends</Text>
-        <Text style={styles.nav}>⚙️{"\n"}Setting</Text>
       </View>
     </ScrollView>
   );
@@ -85,20 +85,114 @@ const styles = StyleSheet.create({
   container: {
     paddingTop: 70,
     paddingHorizontal: 22,
-    paddingBottom: 30,
+    paddingBottom: 40,
   },
   title: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: "800",
     color: "#192033",
     textAlign: "center",
-    marginBottom: 22,
+    marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "600",
+    color: "#5B6475",
+    textAlign: "center",
+    marginBottom: 24,
+  },
+  heroCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    elevation: 4,
+    marginBottom: 24,
+  },
+  heroEmoji: {
+    fontSize: 48,
+  },
+  heroTitle: {
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#182033",
+  },
+  heroText: {
+    fontSize: 14,
+    color: "#5B6475",
+    marginTop: 4,
+    lineHeight: 20,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "800",
     color: "#222",
     marginBottom: 12,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginBottom: 24,
+  },
+  summaryCard: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 18,
+    paddingVertical: 16,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  summaryEmoji: {
+    fontSize: 24,
+    marginBottom: 6,
+  },
+  summaryValue: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#192033",
+  },
+  summaryLabel: {
+    fontSize: 12,
+    color: "#5B6475",
+    marginTop: 4,
+    textAlign: "center",
+  },
+  actionCard: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 20,
+    padding: 18,
+    marginBottom: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  actionTitle: {
+    fontSize: 18,
+    fontWeight: "800",
+    color: "#192033",
+  },
+  actionText: {
+    fontSize: 13,
+    color: "#5B6475",
+    marginTop: 5,
+    maxWidth: 250,
+  },
+  arrow: {
+    fontSize: 30,
+    fontWeight: "800",
+    color: "#11A9D8",
   },
   taskRow: {
     flexDirection: "row",
@@ -109,153 +203,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderRadius: 18,
     padding: 14,
-    minHeight: 150,
+    minHeight: 135,
     shadowColor: "#000",
-    shadowOpacity: 0.12,
+    shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 4,
+    elevation: 3,
   },
   cardTitle: {
-    fontSize: 18,
+    fontSize: 15,
     fontWeight: "800",
+    color: "#192033",
     marginBottom: 8,
   },
   taskText: {
     fontSize: 13,
-    color: "#333",
+    color: "#5B6475",
   },
   emoji: {
-    fontSize: 35,
+    fontSize: 34,
     textAlign: "center",
-    marginTop: 8,
-  },
-  yellowButton: {
-    backgroundColor: "#FFC934",
-    borderRadius: 12,
-    paddingVertical: 7,
-    alignItems: "center",
-    marginTop: 6,
-  },
-  blueButton: {
-    backgroundColor: "#20AEEA",
-    borderRadius: 12,
-    paddingVertical: 7,
-    alignItems: "center",
-    marginTop: 6,
-  },
-  buttonText: {
-    color: "#FFFFFF",
-    fontWeight: "800",
-  },
-  sectionTitle: {
-    textAlign: "center",
-    fontSize: 18,
-    fontWeight: "800",
-    marginVertical: 16,
-  },
-  fuelCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 14,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-  },
-  fuelRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  fuelLabel: {
-    fontSize: 14,
-    color: "#333",
-  },
-  fuelValue: {
-    fontSize: 13,
-    fontWeight: "700",
-  },
-  progressBg: {
-    height: 24,
-    backgroundColor: "#D9EEF7",
-    borderRadius: 20,
-    overflow: "hidden",
-    flexDirection: "row",
     marginTop: 12,
-  },
-  progressCalories: {
-    width: "34%",
-    backgroundColor: "#FFD84D",
-  },
-  progressProtein: {
-    width: "33%",
-    backgroundColor: "#C141D9",
-  },
-  progressWater: {
-    width: "24%",
-    backgroundColor: "#16B9E8",
-  },
-  dots: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 6,
-    marginVertical: 14,
-  },
-  dotActive: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#9BA6B8",
-  },
-  dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: "#D0D6E0",
-  },
-  streakCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 18,
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 16,
-    shadowColor: "#000",
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
-  },
-  fire: {
-    fontSize: 48,
-  },
-  streakTitle: {
-    fontSize: 22,
-    fontWeight: "800",
-  },
-  streakText: {
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  streakSmall: {
-    fontSize: 13,
-    color: "#555",
-  },
-  bottomNav: {
-    marginTop: 30,
-    backgroundColor: "#FFFFFF",
-    borderRadius: 24,
-    paddingVertical: 12,
-    flexDirection: "row",
-    justifyContent: "space-around",
-  },
-  navActive: {
-    textAlign: "center",
-    color: "#11A9D8",
-    fontWeight: "800",
-    fontSize: 12,
-  },
-  nav: {
-    textAlign: "center",
-    color: "#333",
-    fontSize: 12,
   },
 });
