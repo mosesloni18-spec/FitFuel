@@ -54,7 +54,12 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabIcon icon="👤" color={color} />,
         }}
       />
-
+      <Tabs.Screen
+        name="leaderboard"
+        options={{
+          href: null,
+        }}
+      />
       <Tabs.Screen
         name="setting"
         options={{
