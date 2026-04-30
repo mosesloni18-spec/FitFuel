@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   FlatList,
@@ -10,23 +10,39 @@ import {
   View,
 } from "react-native";
 
+// types for routines + workouts (fixed the errors)
+type Workout = {
+  name: string;
+  sets: string;
+  reps: string;
+  done: boolean;
+};
+
+type Routine = {
+  id: string;
+  name: string;
+  workouts: Workout[];
+};
+
 export default function RoutinesScreen() {
 
-  // -------- STATE --------
-  const [routines, setRoutines] = useState([]);
-  const [activity, setActivity] = useState(0);
-  const [completedDays, setCompletedDays] = useState([]);
+  // main state
+  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [activity, setActivity] = useState<number>(0);
+  const [completedDays, setCompletedDays] = useState<number[]>([]);
 
+  // form state
   const [showForm, setShowForm] = useState(false);
   const [routineName, setRoutineName] = useState("");
-  const [workouts, setWorkouts] = useState([]);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [workoutName, setWorkoutName] = useState("");
   const [sets, setSets] = useState("");
   const [reps, setReps] = useState("");
 
-  // -------- LOAD + SAVE --------
+  // load saved data when app starts
   useEffect(() => { loadData(); }, []);
 
+  // save data whenever something changes
   useEffect(() => { saveData(); }, [routines, activity, completedDays]);
 
   const loadData = async () => {
@@ -49,10 +65,10 @@ export default function RoutinesScreen() {
     } catch {}
   };
 
-  // -------- WEEK DAYS --------
+  // gets a few days around today for the calendar
   const getWeekDays = () => {
     const today = new Date();
-    const days = [];
+    const days: number[] = [];
 
     for (let i = -2; i <= 3; i++) {
       const d = new Date();
@@ -63,42 +79,46 @@ export default function RoutinesScreen() {
     return days;
   };
 
-  // -------- ACTIONS --------
+  // adds a workout into the current routine form
   const addWorkout = () => {
     if (!workoutName || !sets || !reps) return;
 
-    setWorkouts([...workouts, {
-      name: workoutName,
-      sets,
-      reps,
-      done: false
-    }]);
+    setWorkouts([
+      ...workouts,
+      { name: workoutName, sets, reps, done: false }
+    ]);
 
     setWorkoutName("");
     setSets("");
     setReps("");
   };
 
+  // saves a new routine
   const saveRoutine = () => {
     if (!routineName || workouts.length === 0) return;
 
-    setRoutines([...routines, {
-      id: Date.now().toString(),
-      name: routineName,
-      workouts
-    }]);
+    setRoutines([
+      ...routines,
+      {
+        id: Date.now().toString(),
+        name: routineName,
+        workouts
+      }
+    ]);
 
     setRoutineName("");
     setWorkouts([]);
     setShowForm(false);
   };
 
-  const toggleWorkout = (id, index) => {
+  // tick/untick workouts
+  const toggleWorkout = (id: string, index: number) => {
     const updated = routines.map(r => {
       if (r.id === id) {
         const newWorkouts = [...r.workouts];
         newWorkouts[index].done = !newWorkouts[index].done;
 
+        // if everything is done, mark the day
         if (newWorkouts.every(w => w.done)) {
           const today = new Date().getDate();
           if (!completedDays.includes(today)) {
@@ -114,26 +134,30 @@ export default function RoutinesScreen() {
     setRoutines(updated);
   };
 
-  const deleteRoutine = (id) => {
+  // delete a routine
+  const deleteRoutine = (id: string) => {
     setRoutines(routines.filter(r => r.id !== id));
   };
 
-  const editRoutine = (id) => {
+  // edit routine name
+  const editRoutine = (id: string) => {
     Alert.prompt("Edit Routine", "New name:", (text) => {
+      if (!text) return;
       setRoutines(routines.map(r =>
         r.id === id ? { ...r, name: text } : r
       ));
     });
   };
 
+  // fake sync (for the feature)
   const syncData = () => {
     const steps = Math.floor(Math.random() * 10000);
     setActivity(steps);
     Alert.alert("Synced", `${steps} steps added`);
   };
 
-  // -------- RENDER --------
-  const renderItem = ({ item }) => {
+  // display each routine
+  const renderItem = ({ item }: { item: Routine }) => {
     const done = item.workouts.filter(w => w.done).length;
     const progress = item.workouts.length === 0 ? 0 : done / item.workouts.length;
 
@@ -164,11 +188,9 @@ export default function RoutinesScreen() {
   return (
     <View style={styles.container}>
 
-      {/* Title (their style) */}
       <Text style={styles.title}>Routines</Text>
       <Text style={styles.text}>Plan and review your workout routines.</Text>
 
-      {/* Activity */}
       <Text style={{ marginTop: 10 }}>
         Today: {activity} steps
       </Text>
@@ -177,7 +199,7 @@ export default function RoutinesScreen() {
         <Text style={{ color: "blue", marginBottom: 10 }}>Sync Fitness Data</Text>
       </TouchableOpacity>
 
-      {/* Calendar */}
+      {/* calendar */}
       <View style={styles.calendar}>
         {getWeekDays().map(day => (
           <View
@@ -192,21 +214,21 @@ export default function RoutinesScreen() {
         ))}
       </View>
 
-      {/* List */}
+      {/* routines list */}
       <FlatList
         data={routines}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
 
-      {/* Add */}
+      {/* create routine button */}
       <TouchableOpacity onPress={() => setShowForm(true)}>
         <Text style={{ color: "blue", marginTop: 10 }}>
           + Create new routine
         </Text>
       </TouchableOpacity>
 
-      {/* Form */}
+      {/* form */}
       {showForm && (
         <View style={{ marginTop: 10 }}>
           <TextInput placeholder="Routine name" value={routineName} onChangeText={setRoutineName} style={styles.input} />
@@ -229,7 +251,7 @@ export default function RoutinesScreen() {
 }
 
 
-// -------- ORIGINAL STYLE --------
+// original style (kept the same)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -250,7 +272,6 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
 
-  // -------- ADDED (extra styles) --------
   card: {
     backgroundColor: "white",
     padding: 10,
