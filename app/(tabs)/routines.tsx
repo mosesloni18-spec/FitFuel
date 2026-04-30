@@ -1,17 +1,18 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Alert,
   FlatList,
-  Modal,
-  ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
+  ScrollView,
+  TextInput,
+  Alert,
+  Modal,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
+// todays date (for calendar highlight)
 const today = new Date().getDate();
 
 // types
@@ -29,6 +30,7 @@ type Routine = {
   workouts: Workout[];
 };
 
+// demo starter routines
 const initialRoutines: Routine[] = [
   { id: "1", name: "Arm Day", emoji: "💪", workouts: [] },
   { id: "2", name: "Leg Day", emoji: "🦵", workouts: [] },
@@ -38,14 +40,22 @@ const initialRoutines: Routine[] = [
 export default function Routines() {
 
   const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
+
+  // calendar state
   const [selectedDay, setSelectedDay] = useState(today);
 
+  // popups
   const [showForm, setShowForm] = useState(false);
   const [selectedRoutineId, setSelectedRoutineId] = useState<string | null>(null);
 
+  // form data
   const [routineName, setRoutineName] = useState("");
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
+  // sync state (for fake fitness sync)
+  const [syncing, setSyncing] = useState(false);
+
+  // load saved routines
   useEffect(() => {
     loadData();
   }, []);
@@ -60,13 +70,14 @@ export default function Routines() {
     await AsyncStorage.setItem("routines", JSON.stringify(data));
   };
 
-  // open form with 1 row so inputs show
+  // open add routine popup (always starts with 1 exercise row)
   const openForm = () => {
     setShowForm(true);
     setRoutineName("");
     setWorkouts([{ name: "", sets: "", reps: "", done: false }]);
   };
 
+  // add new exercise input row
   const addExercise = () => {
     setWorkouts([
       ...workouts,
@@ -74,6 +85,7 @@ export default function Routines() {
     ]);
   };
 
+  // save routine
   const saveRoutine = () => {
     if (!routineName) return;
 
@@ -92,6 +104,7 @@ export default function Routines() {
     setShowForm(false);
   };
 
+  // toggle exercise completion
   const toggleWorkout = (id: string, index: number) => {
     const updated = routines.map(r => {
       if (r.id === id) {
@@ -105,12 +118,14 @@ export default function Routines() {
     saveData(updated);
   };
 
+  // delete routine
   const deleteRoutine = (id: string) => {
     const updated = routines.filter(r => r.id !== id);
     saveData(updated);
     setSelectedRoutineId(null);
   };
 
+  // edit routine name
   const editRoutine = (id: string) => {
     Alert.prompt("Edit Routine", "New name:", (text) => {
       const updated = routines.map(r =>
@@ -120,10 +135,35 @@ export default function Routines() {
     });
   };
 
+  // fake sync feature (for demo)
+  const syncFitnessData = () => {
+    setSyncing(true);
+
+    setTimeout(() => {
+      const updated = routines.map(r => {
+        const updatedWorkouts = r.workouts.map(w => {
+          if (Math.random() > 0.5) {
+            return { ...w, done: true };
+          }
+          return w;
+        });
+        return { ...r, workouts: updatedWorkouts };
+      });
+
+      saveData(updated);
+      setSyncing(false);
+
+      Alert.alert("Synced", "Fitness data synced from your device");
+    }, 1500);
+  };
+
+  // selected routine (for popup)
   const selectedRoutine = routines.find(r => r.id === selectedRoutineId);
 
+  // fake week for calendar UI
   const days = [21,22,23,24,25,26,27,28];
 
+  // render each routine card
   const renderItem = ({ item }: { item: Routine }) => {
 
     const done = item.workouts.filter(w => w.done).length;
@@ -140,6 +180,7 @@ export default function Routines() {
           <Text style={styles.cardTitle}>{item.name}</Text>
         </View>
 
+        {/* progress bar */}
         <View style={styles.progressBg}>
           <View style={[styles.progressFill, { width: `${progress * 100}%` }]} />
         </View>
@@ -150,7 +191,7 @@ export default function Routines() {
   return (
     <ScrollView style={styles.container}>
 
-      {/* calendar */}
+      {/* -------- CALENDAR -------- */}
       <View style={styles.daysRow}>
         {days.map(day => {
           const isToday = day === today;
@@ -177,6 +218,13 @@ export default function Routines() {
         })}
       </View>
 
+      {/* -------- SYNC BUTTON -------- */}
+      <TouchableOpacity style={styles.syncBtn} onPress={syncFitnessData}>
+        <Text style={styles.syncText}>
+          {syncing ? "Syncing..." : "Sync Fitness Data"}
+        </Text>
+      </TouchableOpacity>
+
       {/* routines */}
       <FlatList
         data={routines}
@@ -191,16 +239,17 @@ export default function Routines() {
         <Text style={styles.createText}>Add a routine</Text>
       </TouchableOpacity>
 
-      {/* ADD ROUTINE POPUP */}
+      {/* -------- ADD ROUTINE POPUP -------- */}
       <Modal visible={showForm} transparent animationType="fade">
         <View style={styles.overlay}>
           <View style={styles.modalBox}>
 
+            {/* close */}
             <TouchableOpacity style={styles.closeBtn} onPress={() => setShowForm(false)}>
               <Text>✕</Text>
             </TouchableOpacity>
 
-            {/* FIXED LABEL */}
+            {/* routine name */}
             <Text style={styles.label}>Routine Name</Text>
 
             <TextInput
@@ -212,12 +261,14 @@ export default function Routines() {
 
             <View style={{ height: 12 }} />
 
+            {/* labels */}
             <View style={styles.inputsRow}>
               <Text style={styles.labelExercise}>Exercise</Text>
               <Text style={styles.labelSmall}>Sets</Text>
               <Text style={styles.labelSmall}>Reps</Text>
             </View>
 
+            {/* exercise inputs */}
             {workouts.map((w, i) => (
               <View key={i} style={styles.inputsRow}>
                 <TextInput
@@ -265,7 +316,7 @@ export default function Routines() {
         </View>
       </Modal>
 
-      {/* VIEW ROUTINE POPUP */}
+      {/* -------- VIEW ROUTINE POPUP -------- */}
       <Modal visible={!!selectedRoutine} transparent animationType="fade">
         <View style={styles.overlay}>
           <View style={styles.modalBox}>
@@ -278,6 +329,7 @@ export default function Routines() {
               {selectedRoutine?.name}
             </Text>
 
+            {/* spaced exercises */}
             {selectedRoutine?.workouts.map((w, i) => (
               <TouchableOpacity
                 key={i}
@@ -290,6 +342,7 @@ export default function Routines() {
               </TouchableOpacity>
             ))}
 
+            {/* edit + delete */}
             <View style={styles.popupButtons}>
               <Text style={styles.edit} onPress={() => editRoutine(selectedRoutine!.id)}>Edit</Text>
               <Text style={styles.delete} onPress={() => deleteRoutine(selectedRoutine!.id)}>Delete</Text>
@@ -307,18 +360,22 @@ export default function Routines() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#EEF5FF", paddingTop: 60, paddingHorizontal: 20 },
 
-  // ⭐ FIX ADDED HERE
-  label: {
-    fontSize: 12,
-    color: "#666",
-    marginBottom: 4,
-  },
+  label: { fontSize: 12, color: "#666", marginBottom: 4 },
 
   daysRow: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
   day: { padding: 10, marginHorizontal: 4, backgroundColor: "#eee", borderRadius: 10 },
   activeDay: { backgroundColor: "#2AA7B8" },
   todayDay: { borderWidth: 2, borderColor: "#2AA7B8" },
   todayText: { color: "#2AA7B8" },
+
+  syncBtn: {
+    backgroundColor: "#2AA7B8",
+    padding: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  syncText: { color: "white", fontWeight: "600" },
 
   card: { backgroundColor: "#FFF", borderRadius: 18, padding: 16, marginBottom: 14 },
   cardTop: { flexDirection: "row", alignItems: "center" },
