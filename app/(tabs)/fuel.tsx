@@ -30,6 +30,10 @@ export default function FuelScreen() {
   const [proteinGoalInput, setProteinGoalInput] = useState("50");
   const [waterGoalInput, setWaterGoalInput] = useState("3");
 
+  //added body inputs for auto goal calculation - Sprint 1
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -183,6 +187,28 @@ export default function FuelScreen() {
     Alert.alert("Goals updated", "Your daily goals have been updated.");
   };
 
+  const calculateGoalsFromBody = () => {
+  const h = Number(height);
+  const w = Number(weight);
+
+  if (!h || !w || h <= 0 || w <= 0) {
+    Alert.alert("Invalid input", "Enter valid height and weight");
+    return;
+  }
+
+  // simple student formulas (uses height and weight)
+  const calculatedCalories = Math.round(w * 22 + h * 5);
+  const calculatedProtein = Math.round(w * 1.6);
+
+  setCalorieGoal(calculatedCalories);
+  setProteinGoal(calculatedProtein);
+
+  setCalorieGoalInput(String(calculatedCalories));
+  setProteinGoalInput(String(calculatedProtein));
+
+  Alert.alert("Goals Updated", "Calculated from your height and weight");
+  };
+
   const resetData = async () => {
     setCalories(250);
     setProtein(25);
@@ -325,6 +351,34 @@ export default function FuelScreen() {
           </TouchableOpacity>
         </View>
       </View>
+      <View style={styles.inputCard}>
+  <Text style={styles.inputTitle}>Body Info (Auto Goals)</Text>
+
+  {/* height */}
+  <Text style={styles.goalLabel}>Height (cm)</Text>
+  <TextInput
+    style={styles.fullInput}
+    placeholder="Enter height"
+    keyboardType="numeric"
+    value={height}
+    onChangeText={setHeight}
+  />
+
+  {/* weight */}
+  <Text style={styles.goalLabel}>Weight (kg)</Text>
+  <TextInput
+    style={styles.fullInput}
+    placeholder="Enter weight"
+    keyboardType="numeric"
+    value={weight}
+    onChangeText={setWeight}
+  />
+
+  {/* calculate */}
+  <TouchableOpacity style={styles.updateButton} onPress={calculateGoalsFromBody}>
+    <Text style={styles.buttonText}>Calculate Goals</Text>
+  </TouchableOpacity>
+</View>
 
       <View style={styles.inputCard}>
         <Text style={styles.inputTitle}>Daily Goals</Text>
