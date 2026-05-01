@@ -24,47 +24,48 @@ export default function FuelScreen() {
   const waterGoal = 3;
 
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        const saved = await AsyncStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+          const data = JSON.parse(saved);
+          setCalories(data.calories ?? 250);
+          setProtein(data.protein ?? 25);
+          setWater(data.water ?? 1);
+          setPoints(data.points ?? 150);
+          setStreak(data.streak ?? 2);
+          setWalkDone(data.walkDone ?? false);
+        }
+      } catch {
+        Alert.alert("Error", "Could not load saved fuel data.");
+      }
+    };
+
     loadData();
   }, []);
 
   useEffect(() => {
+    const saveData = async () => {
+      try {
+        await AsyncStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            calories,
+            protein,
+            water,
+            points,
+            streak,
+            walkDone,
+          }),
+        );
+      } catch {
+        console.log("Failed to save fuel data");
+      }
+    };
+
     saveData();
   }, [calories, protein, water, points, streak, walkDone]);
-
-  const loadData = async () => {
-    try {
-      const saved = await AsyncStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        const data = JSON.parse(saved);
-        setCalories(data.calories ?? 250);
-        setProtein(data.protein ?? 25);
-        setWater(data.water ?? 1);
-        setPoints(data.points ?? 150);
-        setStreak(data.streak ?? 2);
-        setWalkDone(data.walkDone ?? false);
-      }
-    } catch {
-      Alert.alert("Error", "Could not load saved fuel data.");
-    }
-  };
-
-  const saveData = async () => {
-    try {
-      await AsyncStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify({
-          calories,
-          protein,
-          water,
-          points,
-          streak,
-          walkDone,
-        }),
-      );
-    } catch {
-      console.log("Failed to save data");
-    }
-  };
 
   const completeWalk = () => {
     if (walkDone) {
@@ -76,8 +77,8 @@ export default function FuelScreen() {
     }
 
     setWalkDone(true);
-    setPoints(points + 50);
-    setCalories(Math.min(calories + 80, calorieGoal));
+    setCalories((prev) => Math.min(prev + 80, calorieGoal));
+    setPoints((prev) => prev + 50);
 
     Alert.alert("Great job!", "Walking task completed. +50 points!");
   };
@@ -86,20 +87,33 @@ export default function FuelScreen() {
     if (water >= waterGoal) {
       Alert.alert(
         "Goal completed",
-        "You already reached your water goal today!",
+        "You already reached your water goal today.",
       );
       return;
     }
 
-    setWater(water + 1);
-    setPoints(points + 20);
+    setWater((prev) => prev + 1);
+    setPoints((prev) => prev + 20);
+  };
 
-    Alert.alert("Water tracked", "+1 glass of water. +20 points!");
+  const addCalories = () => {
+    if (calories >= calorieGoal) {
+      Alert.alert("Goal completed", "You already reached your calorie goal.");
+      return;
+    }
+
+    setCalories((prev) => Math.min(prev + 50, calorieGoal));
+    setPoints((prev) => prev + 10);
   };
 
   const addProtein = () => {
-    setProtein(Math.min(protein + 5, proteinGoal));
-    setPoints(points + 10);
+    if (protein >= proteinGoal) {
+      Alert.alert("Goal completed", "You already reached your protein goal.");
+      return;
+    }
+
+    setProtein((prev) => Math.min(prev + 5, proteinGoal));
+    setPoints((prev) => prev + 10);
   };
 
   const resetData = async () => {
@@ -119,6 +133,7 @@ export default function FuelScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
       <Text style={styles.title}>Welcome back, User!</Text>
+
       <Text style={styles.subtitle}>Climb the leaderboard</Text>
 
       <View style={styles.taskRow}>
@@ -159,12 +174,12 @@ export default function FuelScreen() {
             </Text>
           </View>
 
-          <TouchableOpacity onPress={addProtein}>
+          <View>
             <Text style={styles.fuelLabel}>Protein</Text>
             <Text style={styles.fuelValue}>
               {protein}/{proteinGoal} g
             </Text>
-          </TouchableOpacity>
+          </View>
 
           <View>
             <Text style={styles.fuelLabel}>Water</Text>
@@ -175,27 +190,31 @@ export default function FuelScreen() {
         </View>
 
         <View style={styles.progressBox}>
-          <View style={styles.progressItem}>
-            <View style={styles.progressBg}>
-              <View
-                style={[styles.calorieBar, { width: `${caloriePercent}%` }]}
-              />
-            </View>
+          <View style={styles.progressBg}>
+            <View
+              style={[styles.calorieBar, { width: `${caloriePercent}%` }]}
+            />
           </View>
 
-          <View style={styles.progressItem}>
-            <View style={styles.progressBg}>
-              <View
-                style={[styles.proteinBar, { width: `${proteinPercent}%` }]}
-              />
-            </View>
+          <View style={styles.progressBg}>
+            <View
+              style={[styles.proteinBar, { width: `${proteinPercent}%` }]}
+            />
           </View>
 
-          <View style={styles.progressItem}>
-            <View style={styles.progressBg}>
-              <View style={[styles.waterBar, { width: `${waterPercent}%` }]} />
-            </View>
+          <View style={styles.progressBg}>
+            <View style={[styles.waterBar, { width: `${waterPercent}%` }]} />
           </View>
+        </View>
+
+        <View style={styles.quickButtonRow}>
+          <TouchableOpacity style={styles.smallButton} onPress={addCalories}>
+            <Text style={styles.smallButtonText}>+ Calories</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={styles.smallButton} onPress={addProtein}>
+            <Text style={styles.smallButtonText}>+ Protein</Text>
+          </TouchableOpacity>
         </View>
       </View>
 
@@ -329,9 +348,6 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 18,
   },
-  progressItem: {
-    width: "100%",
-  },
   progressBg: {
     height: 14,
     backgroundColor: "#D0EEF7",
@@ -349,6 +365,22 @@ const styles = StyleSheet.create({
   waterBar: {
     height: "100%",
     backgroundColor: "#10B6D8",
+  },
+  quickButtonRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 16,
+  },
+  smallButton: {
+    flex: 1,
+    backgroundColor: "#192033",
+    paddingVertical: 10,
+    borderRadius: 12,
+    alignItems: "center",
+  },
+  smallButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "800",
   },
   dots: {
     flexDirection: "row",
