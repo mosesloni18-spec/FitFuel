@@ -1,16 +1,16 @@
-import React, { useState, useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { useEffect, useState } from "react";
 import {
+  Alert,
   FlatList,
+  Modal,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
-  ScrollView,
-  TextInput,
-  Alert,
-  Modal,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 // todays date (for calendar highlight)
 const today = new Date().getDate();
@@ -30,11 +30,35 @@ type Routine = {
   workouts: Workout[];
 };
 
-// demo starter routines
+// demo starter routines (NOW WITH EXERCISES so progress shows)
 const initialRoutines: Routine[] = [
-  { id: "1", name: "Arm Day", emoji: "💪", workouts: [] },
-  { id: "2", name: "Leg Day", emoji: "🦵", workouts: [] },
-  { id: "3", name: "Full body", emoji: "🏋️", workouts: [] },
+  {
+    id: "1",
+    name: "Arm Day",
+    emoji: "💪",
+    workouts: [
+      { name: "Bicep Curls", sets: "3", reps: "10", done: false },
+      { name: "Tricep Dips", sets: "3", reps: "12", done: false },
+    ],
+  },
+  {
+    id: "2",
+    name: "Leg Day",
+    emoji: "🦵",
+    workouts: [
+      { name: "Squats", sets: "4", reps: "10", done: false },
+      { name: "Lunges", sets: "3", reps: "12", done: false },
+    ],
+  },
+  {
+    id: "3",
+    name: "Full body",
+    emoji: "🏋️",
+    workouts: [
+      { name: "Push Ups", sets: "3", reps: "10", done: false },
+      { name: "Plank", sets: "3", reps: "30s", done: false },
+    ],
+  },
 ];
 
 export default function Routines() {
@@ -55,6 +79,9 @@ export default function Routines() {
   // sync state (for fake fitness sync)
   const [syncing, setSyncing] = useState(false);
 
+  // demo completed days so calendar shows activity
+  const [completedDays, setCompletedDays] = useState<number[]>([22, 24, 26]); 
+
   // load saved routines
   useEffect(() => {
     loadData();
@@ -62,12 +89,15 @@ export default function Routines() {
 
   const loadData = async () => {
     const data = await AsyncStorage.getItem("routines");
+    const days = await AsyncStorage.getItem("completedDays");
     if (data) setRoutines(JSON.parse(data));
+    if (days) setCompletedDays(JSON.parse(days));
   };
 
   const saveData = async (data: Routine[]) => {
     setRoutines(data);
     await AsyncStorage.setItem("routines", JSON.stringify(data));
+    await AsyncStorage.setItem("completedDays", JSON.stringify(completedDays));
   };
 
   // open add routine popup (always starts with 1 exercise row)
@@ -110,6 +140,18 @@ export default function Routines() {
       if (r.id === id) {
         const w = [...r.workouts];
         w[index].done = !w[index].done;
+
+        // check if all exercises done
+        if (w.length > 0 && w.every(ex => ex.done)) {
+          const today = new Date().getDate();
+
+          if (!completedDays.includes(today)) {
+            const updatedDays = [...completedDays, today];
+            setCompletedDays(updatedDays);
+            AsyncStorage.setItem("completedDays", JSON.stringify(updatedDays));
+          }
+        }
+
         return { ...r, workouts: w };
       }
       return r;
@@ -163,6 +205,14 @@ export default function Routines() {
   // fake week for calendar UI
   const days = [21,22,23,24,25,26,27,28];
 
+  // DEMO: show full progress on completed days 
+  const displayRoutines = completedDays.includes(selectedDay)
+    ? routines.map(r => ({
+        ...r,
+        workouts: r.workouts.map(w => ({ ...w, done: true })),
+      }))
+    : routines;
+
   // render each routine card
   const renderItem = ({ item }: { item: Routine }) => {
 
@@ -203,11 +253,13 @@ export default function Routines() {
               onPress={() => setSelectedDay(day)}
               style={[
                 styles.day,
+                completedDays.includes(day) && styles.completedDay,
                 isToday && styles.todayDay,
                 isSelected && styles.activeDay
               ]}
             >
               <Text style={[
+                completedDays.includes(day) && { color: "white" },
                 isToday && styles.todayText,
                 isSelected && { color: "white" }
               ]}>
@@ -227,7 +279,7 @@ export default function Routines() {
 
       {/* routines */}
       <FlatList
-        data={routines}
+        data={displayRoutines}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
         scrollEnabled={false}
@@ -244,12 +296,10 @@ export default function Routines() {
         <View style={styles.overlay}>
           <View style={styles.modalBox}>
 
-            {/* close */}
             <TouchableOpacity style={styles.closeBtn} onPress={() => setShowForm(false)}>
               <Text>✕</Text>
             </TouchableOpacity>
 
-            {/* routine name */}
             <Text style={styles.label}>Routine Name</Text>
 
             <TextInput
@@ -261,14 +311,12 @@ export default function Routines() {
 
             <View style={{ height: 12 }} />
 
-            {/* labels */}
             <View style={styles.inputsRow}>
               <Text style={styles.labelExercise}>Exercise</Text>
               <Text style={styles.labelSmall}>Sets</Text>
               <Text style={styles.labelSmall}>Reps</Text>
             </View>
 
-            {/* exercise inputs */}
             {workouts.map((w, i) => (
               <View key={i} style={styles.inputsRow}>
                 <TextInput
@@ -329,7 +377,6 @@ export default function Routines() {
               {selectedRoutine?.name}
             </Text>
 
-            {/* spaced exercises */}
             {selectedRoutine?.workouts.map((w, i) => (
               <TouchableOpacity
                 key={i}
@@ -342,7 +389,6 @@ export default function Routines() {
               </TouchableOpacity>
             ))}
 
-            {/* edit + delete */}
             <View style={styles.popupButtons}>
               <Text style={styles.edit} onPress={() => editRoutine(selectedRoutine!.id)}>Edit</Text>
               <Text style={styles.delete} onPress={() => deleteRoutine(selectedRoutine!.id)}>Delete</Text>
@@ -364,6 +410,7 @@ const styles = StyleSheet.create({
 
   daysRow: { flexDirection: "row", justifyContent: "center", marginBottom: 20 },
   day: { padding: 10, marginHorizontal: 4, backgroundColor: "#eee", borderRadius: 10 },
+  completedDay: { backgroundColor: "#4CAF50" },
   activeDay: { backgroundColor: "#2AA7B8" },
   todayDay: { borderWidth: 2, borderColor: "#2AA7B8" },
   todayText: { color: "#2AA7B8" },
