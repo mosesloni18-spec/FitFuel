@@ -329,6 +329,7 @@ export default function FuelScreen() {
       <View style={styles.inputCard}>
         <Text style={styles.inputTitle}>Daily Goals</Text>
 
+        <Text style={styles.goalLabel}>Calorie Goal (cal)</Text>
         <TextInput
           style={styles.fullInput}
           placeholder="Calorie goal"
@@ -337,6 +338,7 @@ export default function FuelScreen() {
           onChangeText={setCalorieGoalInput}
         />
 
+        <Text style={styles.goalLabel}>Protein Goal (g)</Text>
         <TextInput
           style={styles.fullInput}
           placeholder="Protein goal"
@@ -345,6 +347,7 @@ export default function FuelScreen() {
           onChangeText={setProteinGoalInput}
         />
 
+        <Text style={styles.goalLabel}>Water Goal (glasses)</Text>
         <TextInput
           style={styles.fullInput}
           placeholder="Water goal"
@@ -554,6 +557,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     fontSize: 15,
     marginBottom: 10,
+  },
+  goalLabel: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: "#192033",
+    marginBottom: 6,
+    marginTop: 4,
   },
   actionButton: {
     backgroundColor: "#13B2E4",
