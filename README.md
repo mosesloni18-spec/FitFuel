@@ -67,6 +67,7 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - Dynamic progress bar updates
 - Manual input validation
 - Local data persistence (AsyncStorage)
+- - Auto-calculation of calorie, protein, and water goals using height and weight
 
 ## 🔹 Goal Management
 
@@ -85,6 +86,12 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - Create and manage workout routines
 - Add exercises with sets and reps
 - Sync fitness data interaction
+- Edit and delete routines
+- Mark exercises as completed
+- Progress bar updates based on completed exercises
+- Calendar-based activity tracking (completed workout days highlighted)
+- Visual activity history using completed routine progress
+
 
 ## 🔹 Social Features
 
@@ -98,6 +105,8 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - Clean mobile UI
 - Responsive design
 - Navigation between tabs
+- Calendar component for tracking daily activity
+- Modal overlays for viewing and completing routines
 
 ---
 
@@ -132,6 +141,9 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - 🤖 AI-based nutrition recommendation
 - 🧑‍🤝‍🧑 Real-time social system
 - 📊 Advanced analytics dashboard
+- 📈 Detailed activity tracking (steps, calories burned, active minutes)
+- 📅 Full calendar integration with historical workout data
+- 🔗 Integration with Apple Health / Google Fit
 
 ---
 
