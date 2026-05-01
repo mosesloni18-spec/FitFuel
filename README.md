@@ -2,63 +2,140 @@
 
 AI-powered Nutrition & Fitness Companion
 
-FitFuel is a mobile fitness and nutrition tracking app built using React Native and Expo.  
-It focuses on helping users build healthy habits through simple tracking and engaging UI.
+FitFuel is a mobile fitness and nutrition tracking application built using **React Native (Expo)**.  
+The goal of this project is to help users **build healthy habits through tracking, goal setting, and gamification**.
 
 ---
 
-## 🚀 Overview
+# 🚀 Overview
 
-FitFuel combines nutrition tracking, fitness tasks, and progress visualization into a single platform.  
-The goal is to create a habit-forming fitness app with gamification elements such as streaks and challenges.
+FitFuel combines **nutrition tracking, fitness routines, and social motivation** into one platform.
+
+The system focuses on:
+
+- Daily habit tracking
+- User engagement through streaks & points
+- Simple and intuitive mobile UI
+
+This project was developed as part of **COMP602 Software Development Practice (Sprint 1 MVP)**.
 
 ---
 
-## ✨ Current Features
+# 📱 Application Screens
 
-### 🍽️ Nutrition Tracking (UI Prototype)
+## 🏠 Home Page (Moses)
+
+- Daily summary (streak, points, water)
+- Quick navigation to Fuel page
+- Daily task overview
+
+## 🍽️ Fuel Page (Soyeon)
 
 - Track calories, protein, and water intake
-- Visual progress bar
-- Daily fuel dashboard
+- Custom daily goals (calories, protein, water)
+- Real-time progress bars
+- Data persistence using AsyncStorage
+- Streak and points system
 
-### 🏋️ Task System
+## 🏋️ Routines Page (Lana)
 
-- Daily fitness tasks (e.g. walking, hydration)
-- Simple interaction buttons (Go / Track)
+- View workout routines (Arm, Leg, Full Body)
+- Add new routines with exercises
+- Input sets and reps
+- Modal-based routine creation UI
+- Sync fitness data feature
 
-### 🔥 Streak System
+## 👥 Friends Page (Eilmar)
 
-- Daily streak tracking
-- Motivation-based UI design
+- Add friends (UI)
+- View leaderboard navigation
+- Social motivation UI
 
-### 📊 Progress UI
+## 🏆 Leaderboard Page (Eilmar)
 
-- Clean dashboard layout
-- Card-based design for better UX
+- Ranking system based on points
+- Displays top users
+- Gamification for competition
 
 ---
 
-## 🛠️ Tech Stack
+# ✨ Sprint 1 Completed Features
 
-Frontend:
+## 🔹 Nutrition & Tracking System
+
+- Track calories, protein, and water intake
+- Dynamic progress bar updates
+- Manual input validation
+- Local data persistence (AsyncStorage)
+
+## 🔹 Goal Management
+
+- User-defined daily goals
+- Goals update dynamically in UI
+- Improved usability with labeled inputs
+
+## 🔹 Gamification System
+
+- Points system for task completion
+- Daily streak tracking
+- Leaderboard ranking system
+
+## 🔹 Routine Management
+
+- Create and manage workout routines
+- Add exercises with sets and reps
+- Sync fitness data interaction
+
+## 🔹 Social Features
+
+- Friends page UI
+- Leaderboard system
+- Competitive motivation design
+
+## 🔹 UI / UX Design
+
+- Card-based layout
+- Clean mobile UI
+- Responsive design
+- Navigation between tabs
+
+---
+
+# 👥 Team Contribution
+
+| Feature               | Developer |
+| --------------------- | --------- |
+| Home Page             | Moses     |
+| Fuel Page             | Soyeon    |
+| Routines Page         | Lana      |
+| Friends & Leaderboard | Eilmar    |
+
+---
+
+# 🛠️ Tech Stack
+
+### Frontend
 
 - React Native (Expo)
 - TypeScript
 
+### Storage
+
+- AsyncStorage (Local Persistence)
+
 ---
 
-## 🚧 Future Improvements
+# 🚧 Future Improvements
 
 - 🔐 User Authentication (Firebase)
-- 💾 Data persistence (AsyncStorage / Database)
-- 🤖 AI-based recommendation system
-- 🧑‍🤝‍🧑 Social & leaderboard features
-- 📊 Advanced analytics
+- ☁️ Cloud database integration
+- 🤖 AI-based nutrition recommendation
+- 🧑‍🤝‍🧑 Real-time social system
+- 📊 Advanced analytics dashboard
 
 ---
 
-## 📱 Installation
+# 📱 Installation
 
 ```bash
 git clone https://github.com/mosesloni18-spec/FitFuel.git
