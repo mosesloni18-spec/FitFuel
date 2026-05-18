@@ -236,7 +236,7 @@ export default function FuelScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Welcome back, User!</Text>
+      <Text style={styles.title}>Fuel Dashboard</Text>
       <Text style={styles.subtitle}>Climb the leaderboard</Text>
 
       <View style={styles.taskRow}>

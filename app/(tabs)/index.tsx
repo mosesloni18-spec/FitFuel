@@ -7,10 +7,35 @@ import {
   View,
 } from "react-native";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useEffect, useState } from "react";
+
 export default function HomeScreen() {
+  const [userName, setUserName] = useState("User");
+
+  useEffect(() => {
+  loadProfile();
+}, []);
+
+const loadProfile = async () => {
+  try {
+    const saved = await AsyncStorage.getItem("fitfuel_profile");
+
+    if (saved) {
+      const profile = JSON.parse(saved);
+
+      if (profile.name) {
+        setUserName(profile.name);
+      }
+    }
+  } catch {
+    console.log("Could not load profile");
+  }
+};
+
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Welcome back, User!</Text>
+      <Text style={styles.title}>Welcome back, {userName}!</Text>
       <Text style={styles.subtitle}>Your health journey starts today</Text>
 
       <View style={styles.heroCard}>
