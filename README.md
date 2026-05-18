@@ -1,67 +1,157 @@
-# 🥗 FitFuel  
-**AI-powered Nutrition & Fitness Companion**
+# 🥗 FitFuel
 
-FitFuel is a smart mobile application designed to help users manage their nutrition, fitness, and overall health through personalized recommendations and data-driven insights.
+AI-powered Nutrition & Fitness Companion
 
----
-
-## 🚀 Overview
-
-FitFuel combines **nutrition tracking**, **fitness planning**, and **AI-based recommendations** into a single platform.  
-The goal is to help users build sustainable healthy habits through automation and intelligent feedback.
+FitFuel is a mobile fitness and nutrition tracking application built using **React Native (Expo)**.  
+The goal of this project is to help users **build healthy habits through tracking, goal setting, and gamification**.
 
 ---
 
-## ✨ Key Features
+# 🚀 Overview
 
-### 🍽️ Smart Nutrition Tracking
-- Log daily meals easily
-- Track calories, macronutrients, and dietary patterns
-- Visual dashboards for progress monitoring
+FitFuel combines **nutrition tracking, fitness routines, and social motivation** into one platform.
 
-### 🏋️ Personalized Fitness Plans
-- Custom workout routines based on user goals
-- Beginner to advanced level support
-- Adaptive plans that evolve with user progress
+The system focuses on:
 
-### 🤖 AI-Powered Recommendations
-- Suggest meals based on dietary goals
-- Recommend workouts tailored to user behavior
-- Continuous learning from user data
+- Daily habit tracking
+- User engagement through streaks & points
+- Simple and intuitive mobile UI
 
-### 📊 Progress Analytics
-- Weekly and monthly insights
-- Goal tracking (weight, calories, activity)
-- Data visualization for better decision-making
-
-### 🔐 User Authentication
-- Secure login & signup
-- Personalized dashboard per user
+This project was developed as part of **COMP602 Software Development Practice (Sprint 1 MVP)**.
 
 ---
 
-## 🛠️ Tech Stack
+# 📱 Application Screens
+
+## 🏠 Home Page (Moses)
+
+- Daily summary (streak, points, water)
+- Quick navigation to Fuel page
+- Daily task overview
+
+## 🍽️ Fuel Page (Soyeon)
+
+- Track calories, protein, and water intake
+- Custom daily goals (calories, protein, water)
+- Real-time progress bars
+- Data persistence using AsyncStorage
+- Streak and points system
+
+## 🏋️ Routines Page (Lana)
+
+- View workout routines (Arm, Leg, Full Body)
+- Add new routines with exercises
+- Input sets and reps
+- Modal-based routine creation UI
+- Sync fitness data feature
+
+## 👥 Friends Page (Eilmar)
+
+- Add friends (UI)
+- View leaderboard navigation
+- Social motivation UI
+
+## 🏆 Leaderboard Page (Eilmar)
+
+- Ranking system based on points
+- Displays top users
+- Gamification for competition
+
+---
+
+# ✨ Sprint 1 Completed Features
+
+## 🔹 Nutrition & Tracking System
+
+- Track calories, protein, and water intake
+- Dynamic progress bar updates
+- Manual input validation
+- Local data persistence (AsyncStorage)
+- - Auto-calculation of calorie, protein, and water goals using height and weight
+
+## 🔹 Goal Management
+
+- User-defined daily goals
+- Goals update dynamically in UI
+- Improved usability with labeled inputs
+
+## 🔹 Gamification System
+
+- Points system for task completion
+- Daily streak tracking
+- Leaderboard ranking system
+
+## 🔹 Routine Management
+
+- Create and manage workout routines
+- Add exercises with sets and reps
+- Sync fitness data interaction
+- Edit and delete routines
+- Mark exercises as completed
+- Progress bar updates based on completed exercises
+- Calendar-based activity tracking (completed workout days highlighted)
+- Visual activity history using completed routine progress
+
+
+## 🔹 Social Features
+
+- Friends page UI
+- Leaderboard system
+- Competitive motivation design
+
+## 🔹 UI / UX Design
+
+- Card-based layout
+- Clean mobile UI
+- Responsive design
+- Navigation between tabs
+- Calendar component for tracking daily activity
+- Modal overlays for viewing and completing routines
+
+---
+
+# 👥 Team Contribution
+
+| Feature               | Developer |
+| --------------------- | --------- |
+| Home Page             | Moses     |
+| Fuel Page             | Soyeon    |
+| Routines Page         | Lana      |
+| Friends & Leaderboard | Eilmar    |
+
+---
+
+# 🛠️ Tech Stack
 
 ### Frontend
+
 - React Native (Expo)
-- JavaScript / TypeScript
+- TypeScript
 
-### Backend
-- Node.js / FastAPI
-- REST API architecture
+### Storage
 
-### Database
-- MongoDB / MySQL
-
-### AI / Data
-- Python (Machine Learning models)
-- Recommendation algorithms
+- AsyncStorage (Local Persistence)
 
 ---
 
-## 📱 Installation
+# 🚧 Future Improvements
 
-### 1. Clone the repository
+- 🔐 User Authentication (Firebase)
+- ☁️ Cloud database integration
+- 🤖 AI-based nutrition recommendation
+- 🧑‍🤝‍🧑 Real-time social system
+- 📊 Advanced analytics dashboard
+- 📈 Detailed activity tracking (steps, calories burned, active minutes)
+- 📅 Full calendar integration with historical workout data
+- 🔗 Integration with Apple Health / Google Fit
+
+---
+
+# 📱 Installation
+
 ```bash
-git clone https://github.com/your-username/FitFuel.git
+git clone https://github.com/mosesloni18-spec/FitFuel.git
 cd FitFuel
+npm install
+npx expo start
+```
