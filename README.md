@@ -133,13 +133,6 @@ Currently at **Sprint 2**.
 - Current streak and longest streak both displayed on the Home screen and Fuel page
 - Points total displayed on the Home screen, Fuel page, and Profile page
 
-## 🔹 User Profile (Soyeon)
-
-- Added Fitness Goal field (e.g. "Lose weight", "Build muscle")
-- Added Bio field (multiline, free-text self-introduction)
-- Profile page now displays total earned points in a dedicated card
-- All profile fields persist across sessions via AsyncStorage
-
 ## 🔹 Home Screen Live Data (Soyeon)
 
 - Streak, longest streak, points, and water intake now load dynamically from AsyncStorage instead of showing hardcoded placeholder values
