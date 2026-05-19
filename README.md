@@ -17,7 +17,8 @@ The system focuses on:
 - User engagement through streaks & points
 - Simple and intuitive mobile UI
 
-This project was developed as part of **COMP602 Software Development Practice (Sprint 1 MVP)**.
+This project was developed as part of **COMP602 Software Development Practice**.  
+Currently at **Sprint 2**.
 
 ---
 
@@ -25,9 +26,15 @@ This project was developed as part of **COMP602 Software Development Practice (S
 
 ## 🏠 Home Page (Moses)
 
-- Daily summary (streak, points, water)
+- Live daily summary (current streak, longest streak, points, water intake)
 - Quick navigation to Fuel page
 - Daily task overview
+
+## 🚀 Onboarding Screen (Moses)
+
+- Short onboarding tutorial for first-time users
+- Introduces core FitFuel features and navigation
+- Includes skip functionality and progress indicators
 
 ## 🍽️ Fuel Page (Soyeon)
 
@@ -35,7 +42,17 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - Custom daily goals (calories, protein, water)
 - Real-time progress bars
 - Data persistence using AsyncStorage
-- Streak and points system
+- Points awarded for completing tasks (walk +50, water goal +20/glass, calorie goal +10, protein goal +10)
+- Daily streak tracking — resets to 0 each new day until at least one task is completed
+- Longest streak tracking and display
+- Auto-calculation of calorie and protein goals from height and weight
+
+## 👤 Profile Page (Moses, Soyeon)
+
+- Personal info: name, age, height, weight
+- Fitness goal and bio fields
+- Total points display
+- Data saved to AsyncStorage
 
 ## 🏋️ Routines Page (Lana)
 
@@ -67,7 +84,7 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - Dynamic progress bar updates
 - Manual input validation
 - Local data persistence (AsyncStorage)
-- - Auto-calculation of calorie, protein, and water goals using height and weight
+- Auto-calculation of calorie, protein, and water goals using height and weight
 
 ## 🔹 Goal Management
 
@@ -92,7 +109,6 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - Calendar-based activity tracking (completed workout days highlighted)
 - Visual activity history using completed routine progress
 
-
 ## 🔹 Social Features
 
 - Friends page UI
@@ -110,11 +126,50 @@ This project was developed as part of **COMP602 Software Development Practice (S
 
 ---
 
+# ✨ Sprint 2 Completed Features
+
+## 🔹 Gamification System (Soyeon)
+
+- Points awarded per task completion: walking task (+50), each glass of water (+20), reaching calorie goal (+10), reaching protein goal (+10)
+- Points are only awarded on explicit task completion — incomplete tasks never award points
+- Daily task completion flags (`walkDone`, `waterGoalDone`, `calorieGoalDone`, `proteinGoalDone`) reset automatically at the start of each new calendar day
+- Daily streak resets to 0 at the start of each new day and increments only when a task is completed
+- Streak increments by 1 for consecutive active days; resets to 1 if a day is skipped
+- Longest streak tracked separately and updated whenever the current streak exceeds the previous best
+- Current streak and longest streak both displayed on the Home screen and Fuel page
+- Points total displayed on the Home screen, Fuel page, and Profile page
+
+## 🔹 Home Screen Live Data (Soyeon)
+
+- Streak, longest streak, points, and water intake now load dynamically from AsyncStorage instead of showing hardcoded placeholder values
+- Home screen refreshes data automatically each time the tab is focused via `useFocusEffect`
+
+## 🔹 Profile System (Moses, Soyeon)
+
+- Added editable user profile management
+- Stores name, age, height, and weight information
+- Added fitness goal and personal bio fields
+- Added total points display synced with the gamification system
+- Profile data persistence using AsyncStorage
+- Responsive card-based profile UI
+
+## 🔹 Short Onboarding Tutorial (Moses)
+
+- Multi-step onboarding flow for first-time users
+- Introduces the main FitFuel features including: Nutrition tracking, Daily fitness tasks and Leaderboard competition
+- Includes progress indicators and skip functionality
+- Uses AsyncStorage to persist onboarding completion state
+- Returning users are automatically redirected to the main application tabs
+- Designed with a clean and mobile-friendly UI consistent with the FitFuel theme
+- The onboarding experience helps new users quickly understand the purpose and core functionality of the application before entering the main system.
+
+---
+
 # 👥 Team Contribution
 
 | Feature               | Developer |
 | --------------------- | --------- |
-| Home Page             | Moses     |
+| Home & Profile        | Moses     |
 | Fuel Page             | Soyeon    |
 | Routines Page         | Lana      |
 | Friends & Leaderboard | Eilmar    |
@@ -144,6 +199,9 @@ This project was developed as part of **COMP602 Software Development Practice (S
 - 📈 Detailed activity tracking (steps, calories burned, active minutes)
 - 📅 Full calendar integration with historical workout data
 - 🔗 Integration with Apple Health / Google Fit
+- 🔔 Smart activity reminders with customisable frequency and time
+- 🏅 Streak milestone rewards and bonus points
+- 🤝 Friend invitation and live leaderboard
 
 ---
 

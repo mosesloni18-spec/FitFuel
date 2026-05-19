@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -12,13 +12,27 @@ import {
 
 const STORAGE_KEY = "fitfuel_fuel_data";
 
+const getToday = () => new Date().toISOString().split('T')[0];
+const getYesterday = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().split('T')[0];
+};
+
 export default function FuelScreen() {
+  const hasLoaded = useRef(false);
+
   const [calories, setCalories] = useState(250);
   const [protein, setProtein] = useState(25);
   const [water, setWater] = useState(1);
   const [points, setPoints] = useState(150);
-  const [streak, setStreak] = useState(2);
+  const [streak, setStreak] = useState(0);
   const [walkDone, setWalkDone] = useState(false);
+  const [waterGoalDone, setWaterGoalDone] = useState(false);
+  const [calorieGoalDone, setCalorieGoalDone] = useState(false);
+  const [proteinGoalDone, setProteinGoalDone] = useState(false);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [lastActiveDate, setLastActiveDate] = useState('');
 
   const [calorieGoal, setCalorieGoal] = useState(500);
   const [proteinGoal, setProteinGoal] = useState(50);
@@ -46,8 +60,6 @@ export default function FuelScreen() {
           setProtein(data.protein ?? 25);
           setWater(data.water ?? 1);
           setPoints(data.points ?? 150);
-          setStreak(data.streak ?? 2);
-          setWalkDone(data.walkDone ?? false);
 
           setCalorieGoal(data.calorieGoal ?? 500);
           setProteinGoal(data.proteinGoal ?? 50);
@@ -56,7 +68,30 @@ export default function FuelScreen() {
           setCalorieGoalInput(String(data.calorieGoal ?? 500));
           setProteinGoalInput(String(data.proteinGoal ?? 50));
           setWaterGoalInput(String(data.waterGoal ?? 3));
+
+          // Reset daily task flags if it's a new day
+          const today = getToday();
+          const loadedLastActive = data.lastActiveDate ?? '';
+          if (loadedLastActive === today) {
+            setWalkDone(data.walkDone ?? false);
+            setWaterGoalDone(data.waterGoalDone ?? false);
+            setCalorieGoalDone(data.calorieGoalDone ?? false);
+            setProteinGoalDone(data.proteinGoalDone ?? false);
+          } else {
+            setWalkDone(false);
+            setWaterGoalDone(false);
+            setCalorieGoalDone(false);
+            setProteinGoalDone(false);
+          }
+
+          const loadedStreak = data.streak ?? 0;
+          const loadedLongest = data.longestStreak ?? loadedStreak;
+
+          setStreak(loadedStreak);
+          setLongestStreak(loadedLongest);
+          setLastActiveDate(loadedLastActive);
         }
+        hasLoaded.current = true;
       } catch {
         Alert.alert("Error", "Could not load saved fuel data.");
       }
@@ -66,6 +101,8 @@ export default function FuelScreen() {
   }, []);
 
   useEffect(() => {
+    if (!hasLoaded.current) return;
+
     const saveData = async () => {
       try {
         await AsyncStorage.setItem(
@@ -80,6 +117,11 @@ export default function FuelScreen() {
             calorieGoal,
             proteinGoal,
             waterGoal,
+            longestStreak,
+            lastActiveDate,
+            waterGoalDone,
+            calorieGoalDone,
+            proteinGoalDone,
           }),
         );
       } catch {
@@ -98,7 +140,24 @@ export default function FuelScreen() {
     calorieGoal,
     proteinGoal,
     waterGoal,
+    longestStreak,
+    lastActiveDate,
+    waterGoalDone,
+    calorieGoalDone,
+    proteinGoalDone,
   ]);
+
+  const completeStreak = () => {
+    const today = getToday();
+    if (lastActiveDate === today) return;
+
+    const yesterday = getYesterday();
+    const newStreak = lastActiveDate === yesterday ? streak + 1 : 1;
+    const newLongest = Math.max(longestStreak, newStreak);
+    setStreak(newStreak);
+    setLongestStreak(newLongest);
+    setLastActiveDate(today);
+  };
 
   const addCalories = () => {
     const amount = Number(calorieInput);
@@ -108,9 +167,15 @@ export default function FuelScreen() {
       return;
     }
 
-    setCalories((prev) => Math.min(prev + amount, calorieGoal));
+    const newCalories = Math.min(calories + amount, calorieGoal);
+    setCalories(newCalories);
     setPoints((prev) => prev + 10);
     setCalorieInput("");
+
+    if (newCalories >= calorieGoal && !calorieGoalDone) {
+      setCalorieGoalDone(true);
+      completeStreak();
+    }
   };
 
   const addProtein = () => {
@@ -121,9 +186,15 @@ export default function FuelScreen() {
       return;
     }
 
-    setProtein((prev) => Math.min(prev + amount, proteinGoal));
+    const newProtein = Math.min(protein + amount, proteinGoal);
+    setProtein(newProtein);
     setPoints((prev) => prev + 10);
     setProteinInput("");
+
+    if (newProtein >= proteinGoal && !proteinGoalDone) {
+      setProteinGoalDone(true);
+      completeStreak();
+    }
   };
 
   const increaseWater = () => {
@@ -135,8 +206,14 @@ export default function FuelScreen() {
       return;
     }
 
-    setWater((prev) => prev + 1);
+    const newWater = water + 1;
+    setWater(newWater);
     setPoints((prev) => prev + 20);
+
+    if (newWater >= waterGoal && !waterGoalDone) {
+      setWaterGoalDone(true);
+      completeStreak();
+    }
   };
 
   const decreaseWater = () => {
@@ -155,6 +232,7 @@ export default function FuelScreen() {
     setWalkDone(true);
     setCalories((prev) => Math.min(prev + 80, calorieGoal));
     setPoints((prev) => prev + 50);
+    completeStreak();
 
     Alert.alert("Great job!", "Walking task completed. +50 points!");
   };
@@ -183,6 +261,10 @@ export default function FuelScreen() {
     setCalories((prev) => Math.min(prev, newCalorieGoal));
     setProtein((prev) => Math.min(prev, newProteinGoal));
     setWater((prev) => Math.min(prev, newWaterGoal));
+
+    if (calories < newCalorieGoal) setCalorieGoalDone(false);
+    if (protein < newProteinGoal) setProteinGoalDone(false);
+    if (water < newWaterGoal) setWaterGoalDone(false);
 
     Alert.alert("Goals updated", "Your daily goals have been updated.");
   };
@@ -214,8 +296,13 @@ export default function FuelScreen() {
     setProtein(25);
     setWater(1);
     setPoints(150);
-    setStreak(2);
+    setStreak(0);
+    setLongestStreak(0);
+    setLastActiveDate('');
     setWalkDone(false);
+    setWaterGoalDone(false);
+    setCalorieGoalDone(false);
+    setProteinGoalDone(false);
 
     setCalorieGoal(500);
     setProteinGoal(50);
@@ -229,6 +316,8 @@ export default function FuelScreen() {
 
     await AsyncStorage.removeItem(STORAGE_KEY);
   };
+
+  const displayedStreak = lastActiveDate === getToday() ? streak : 0;
 
   const caloriePercent = Math.min((calories / calorieGoal) * 100, 100);
   const proteinPercent = Math.min((protein / proteinGoal) * 100, 100);
@@ -418,9 +507,9 @@ export default function FuelScreen() {
       <View style={styles.streakCard}>
         <Text style={styles.fire}>🔥</Text>
         <View>
-          <Text style={styles.streakTitle}>{streak} Day Streak!</Text>
-          <Text style={styles.streakText}>Points +{points}</Text>
-          <Text style={styles.streakSmall}>Next rank on leaderboard</Text>
+          <Text style={styles.streakTitle}>{displayedStreak} Day Streak!</Text>
+          <Text style={styles.streakSmall}>Longest: {longestStreak} days</Text>
+          <Text style={styles.streakText}>Points: {points}</Text>
         </View>
       </View>
 
