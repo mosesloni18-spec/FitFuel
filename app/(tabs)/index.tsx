@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
@@ -8,8 +9,8 @@ import {
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
+import { useCallback, useEffect, useState } from "react";
 
 export default function HomeScreen() {
   const [userName, setUserName] = useState("User");
@@ -38,8 +39,8 @@ export default function HomeScreen() {
         setWater(data.water ?? 0);
         setWaterGoal(data.waterGoal ?? 3);
 
-        const today = new Date().toISOString().split('T')[0];
-        const loadedLastActive = data.lastActiveDate ?? '';
+        const today = new Date().toISOString().split("T")[0];
+        const loadedLastActive = data.lastActiveDate ?? "";
         const loadedStreak = data.streak ?? 0;
         const displayedStreak = loadedLastActive === today ? loadedStreak : 0;
         setStreak(displayedStreak);
@@ -53,8 +54,19 @@ export default function HomeScreen() {
   useFocusEffect(
     useCallback(() => {
       loadData();
-    }, [loadData])
+    }, [loadData]),
   );
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      Alert.alert(
+        "FitFuel Reminder 💪",
+        "Take a 10 minute walk and drink water!",
+      );
+    }, 10000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
@@ -89,12 +101,33 @@ export default function HomeScreen() {
 
         <View style={styles.summaryCard}>
           <Text style={styles.summaryEmoji}>💧</Text>
-          <Text style={styles.summaryValue}>{water}/{waterGoal}</Text>
+          <Text style={styles.summaryValue}>
+            {water}/{waterGoal}
+          </Text>
           <Text style={styles.summaryLabel}>Water</Text>
         </View>
       </View>
 
       <Text style={styles.sectionTitle}>Quick Actions</Text>
+
+      <TouchableOpacity
+        style={styles.actionCard}
+        onPress={() =>
+          Alert.alert(
+            "Reminder Scheduled",
+            "You will receive a healthy task reminder shortly.",
+          )
+        }
+      >
+        <View>
+          <Text style={styles.actionTitle}>Daily Reminder</Text>
+          <Text style={styles.actionText}>
+            Stay active with small healthy tasks.
+          </Text>
+        </View>
+
+        <Text style={styles.arrow}>⏰</Text>
+      </TouchableOpacity>
 
       <TouchableOpacity
         style={styles.actionCard}
