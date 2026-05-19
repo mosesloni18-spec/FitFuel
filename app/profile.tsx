@@ -17,6 +17,8 @@ export default function ProfileScreen() {
   const [age, setAge] = useState("");
   const [height, setHeight] = useState("");
   const [weight, setWeight] = useState("");
+  const [goal, setGoal] = useState("");
+  const [bio, setBio] = useState("");
 
   useEffect(() => {
     loadProfile();
@@ -33,6 +35,8 @@ export default function ProfileScreen() {
         setAge(profile.age || "");
         setHeight(profile.height || "");
         setWeight(profile.weight || "");
+        setGoal(profile.goal || "");
+        setBio(profile.bio || "");
       }
     } catch {
       Alert.alert("Error", "Could not load profile");
@@ -46,6 +50,8 @@ export default function ProfileScreen() {
         age,
         height,
         weight,
+        goal,
+        bio,
       };
 
       await AsyncStorage.setItem(
@@ -99,6 +105,23 @@ export default function ProfileScreen() {
           onChangeText={setWeight}
         />
 
+        <Text style={styles.label}>Fitness Goal</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="e.g. Lose weight, Build muscle"
+          value={goal}
+          onChangeText={setGoal}
+        />
+
+        <Text style={styles.label}>Bio</Text>
+        <TextInput
+          style={[styles.input, styles.bioInput]}
+          placeholder="Tell us a bit about yourself"
+          value={bio}
+          onChangeText={setBio}
+          multiline
+        />
+
         <TouchableOpacity style={styles.button} onPress={saveProfile}>
           <Text style={styles.buttonText}>Save Profile</Text>
         </TouchableOpacity>
@@ -111,6 +134,8 @@ export default function ProfileScreen() {
         <Text style={styles.profileText}>Age: {age}</Text>
         <Text style={styles.profileText}>Height: {height} cm</Text>
         <Text style={styles.profileText}>Weight: {weight} kg</Text>
+        <Text style={styles.profileText}>Goal: {goal}</Text>
+        <Text style={styles.profileText}>Bio: {bio}</Text>
       </View>
     </ScrollView>
   );
@@ -157,6 +182,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
+  },
+
+  bioInput: {
+    minHeight: 80,
+    textAlignVertical: "top",
   },
 
   button: {

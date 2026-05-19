@@ -27,6 +27,8 @@ export default function FuelScreen() {
   const [streak, setStreak] = useState(2);
   const [walkDone, setWalkDone] = useState(false);
   const [waterGoalDone, setWaterGoalDone] = useState(false);
+  const [calorieGoalDone, setCalorieGoalDone] = useState(false);
+  const [proteinGoalDone, setProteinGoalDone] = useState(false);
   const [longestStreak, setLongestStreak] = useState(2);
   const [lastActiveDate, setLastActiveDate] = useState('');
 
@@ -71,9 +73,13 @@ export default function FuelScreen() {
           if (loadedLastActive === today) {
             setWalkDone(data.walkDone ?? false);
             setWaterGoalDone(data.waterGoalDone ?? false);
+            setCalorieGoalDone(data.calorieGoalDone ?? false);
+            setProteinGoalDone(data.proteinGoalDone ?? false);
           } else {
             setWalkDone(false);
             setWaterGoalDone(false);
+            setCalorieGoalDone(false);
+            setProteinGoalDone(false);
           }
 
           // Reset streak if user missed a day
@@ -113,6 +119,8 @@ export default function FuelScreen() {
             longestStreak,
             lastActiveDate,
             waterGoalDone,
+            calorieGoalDone,
+            proteinGoalDone,
           }),
         );
       } catch {
@@ -134,6 +142,8 @@ export default function FuelScreen() {
     longestStreak,
     lastActiveDate,
     waterGoalDone,
+    calorieGoalDone,
+    proteinGoalDone,
   ]);
 
   const completeStreak = () => {
@@ -156,9 +166,15 @@ export default function FuelScreen() {
       return;
     }
 
-    setCalories((prev) => Math.min(prev + amount, calorieGoal));
+    const newCalories = Math.min(calories + amount, calorieGoal);
+    setCalories(newCalories);
     setPoints((prev) => prev + 10);
     setCalorieInput("");
+
+    if (newCalories >= calorieGoal && !calorieGoalDone) {
+      setCalorieGoalDone(true);
+      completeStreak();
+    }
   };
 
   const addProtein = () => {
@@ -169,9 +185,15 @@ export default function FuelScreen() {
       return;
     }
 
-    setProtein((prev) => Math.min(prev + amount, proteinGoal));
+    const newProtein = Math.min(protein + amount, proteinGoal);
+    setProtein(newProtein);
     setPoints((prev) => prev + 10);
     setProteinInput("");
+
+    if (newProtein >= proteinGoal && !proteinGoalDone) {
+      setProteinGoalDone(true);
+      completeStreak();
+    }
   };
 
   const increaseWater = () => {
@@ -274,6 +296,8 @@ export default function FuelScreen() {
     setLastActiveDate('');
     setWalkDone(false);
     setWaterGoalDone(false);
+    setCalorieGoalDone(false);
+    setProteinGoalDone(false);
 
     setCalorieGoal(500);
     setProteinGoal(50);
