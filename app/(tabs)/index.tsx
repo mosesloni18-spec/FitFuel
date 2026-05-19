@@ -215,9 +215,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   summarySubLabel: {
-    fontSize: 10,
-    color: "#8B95A5",
+    fontSize: 12,
+    color: "#5B6475",
     textAlign: "center",
+    marginTop: 2,
   },
   actionCard: {
     backgroundColor: "#FFFFFF",
