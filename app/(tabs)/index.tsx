@@ -8,7 +8,7 @@ import {
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen() {
@@ -54,10 +54,6 @@ export default function HomeScreen() {
       console.log("Could not load fuel data");
     }
   }, []);
-
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
 
   useFocusEffect(
     useCallback(() => {

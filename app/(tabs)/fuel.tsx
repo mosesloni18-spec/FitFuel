@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -20,6 +20,8 @@ const getYesterday = () => {
 };
 
 export default function FuelScreen() {
+  const hasLoaded = useRef(false);
+
   const [calories, setCalories] = useState(250);
   const [protein, setProtein] = useState(25);
   const [water, setWater] = useState(1);
@@ -93,6 +95,7 @@ export default function FuelScreen() {
           setLongestStreak(loadedLongest);
           setLastActiveDate(loadedLastActive);
         }
+        hasLoaded.current = true;
       } catch {
         Alert.alert("Error", "Could not load saved fuel data.");
       }
@@ -102,6 +105,8 @@ export default function FuelScreen() {
   }, []);
 
   useEffect(() => {
+    if (!hasLoaded.current) return;
+
     const saveData = async () => {
       try {
         await AsyncStorage.setItem(
@@ -260,6 +265,10 @@ export default function FuelScreen() {
     setCalories((prev) => Math.min(prev, newCalorieGoal));
     setProtein((prev) => Math.min(prev, newProteinGoal));
     setWater((prev) => Math.min(prev, newWaterGoal));
+
+    if (calories < newCalorieGoal) setCalorieGoalDone(false);
+    if (protein < newProteinGoal) setProteinGoalDone(false);
+    if (water < newWaterGoal) setWaterGoalDone(false);
 
     Alert.alert("Goals updated", "Your daily goals have been updated.");
   };
