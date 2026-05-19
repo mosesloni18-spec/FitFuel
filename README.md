@@ -30,6 +30,12 @@ Currently at **Sprint 2**.
 - Quick navigation to Fuel page
 - Daily task overview
 
+## 🚀 Onboarding Screen (Moses)
+
+- Short onboarding tutorial for first-time users
+- Introduces core FitFuel features and navigation
+- Includes skip functionality and progress indicators
+
 ## 🍽️ Fuel Page (Soyeon)
 
 - Track calories, protein, and water intake
@@ -41,7 +47,7 @@ Currently at **Sprint 2**.
 - Longest streak tracking and display
 - Auto-calculation of calorie and protein goals from height and weight
 
-## 👤 Profile Page (Soyeon)
+## 👤 Profile Page (Moses, Soyeon)
 
 - Personal info: name, age, height, weight
 - Fitness goal and bio fields
@@ -137,6 +143,25 @@ Currently at **Sprint 2**.
 
 - Streak, longest streak, points, and water intake now load dynamically from AsyncStorage instead of showing hardcoded placeholder values
 - Home screen refreshes data automatically each time the tab is focused via `useFocusEffect`
+
+## 🔹 Profile System (Moses, Soyeon)
+
+- Added editable user profile management
+- Stores name, age, height, and weight information
+- Added fitness goal and personal bio fields
+- Added total points display synced with the gamification system
+- Profile data persistence using AsyncStorage
+- Responsive card-based profile UI
+
+## 🔹 Short Onboarding Tutorial (Moses)
+
+- Multi-step onboarding flow for first-time users
+- Introduces the main FitFuel features including: Nutrition tracking, Daily fitness tasks and Leaderboard competition
+- Includes progress indicators and skip functionality
+- Uses AsyncStorage to persist onboarding completion state
+- Returning users are automatically redirected to the main application tabs
+- Designed with a clean and mobile-friendly UI consistent with the FitFuel theme
+- The onboarding experience helps new users quickly understand the purpose and core functionality of the application before entering the main system.
 
 ---
 
