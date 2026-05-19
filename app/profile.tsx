@@ -11,6 +11,7 @@ import {
 } from "react-native";
 
 const STORAGE_KEY = "fitfuel_profile";
+const FUEL_KEY = "fitfuel_fuel_data";
 
 export default function ProfileScreen() {
   const [name, setName] = useState("");
@@ -19,9 +20,11 @@ export default function ProfileScreen() {
   const [weight, setWeight] = useState("");
   const [goal, setGoal] = useState("");
   const [bio, setBio] = useState("");
+  const [points, setPoints] = useState(0);
 
   useEffect(() => {
     loadProfile();
+    loadPoints();
   }, []);
 
   const loadProfile = async () => {
@@ -40,6 +43,18 @@ export default function ProfileScreen() {
       }
     } catch {
       Alert.alert("Error", "Could not load profile");
+    }
+  };
+
+  const loadPoints = async () => {
+    try {
+      const saved = await AsyncStorage.getItem(FUEL_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        setPoints(data.points ?? 0);
+      }
+    } catch {
+      console.log("Could not load points");
     }
   };
 
@@ -127,6 +142,14 @@ export default function ProfileScreen() {
         </TouchableOpacity>
       </View>
 
+      <View style={styles.pointsCard}>
+        <Text style={styles.pointsEmoji}>⭐</Text>
+        <View>
+          <Text style={styles.pointsValue}>{points}</Text>
+          <Text style={styles.pointsLabel}>Total Points</Text>
+        </View>
+      </View>
+
       <View style={styles.profileCard}>
         <Text style={styles.profileTitle}>Saved Profile</Text>
 
@@ -201,6 +224,32 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontWeight: "900",
     fontSize: 16,
+  },
+
+  pointsCard: {
+    backgroundColor: "#192033",
+    borderRadius: 20,
+    padding: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 16,
+    marginBottom: 20,
+  },
+
+  pointsEmoji: {
+    fontSize: 44,
+  },
+
+  pointsValue: {
+    fontSize: 32,
+    fontWeight: "900",
+    color: "#FFFFFF",
+  },
+
+  pointsLabel: {
+    fontSize: 14,
+    color: "#A0AEC0",
+    marginTop: 2,
   },
 
   profileCard: {
