@@ -8,30 +8,62 @@ import {
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const [userName, setUserName] = useState("User");
+  const [streak, setStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [points, setPoints] = useState(0);
+  const [water, setWater] = useState(0);
+  const [waterGoal, setWaterGoal] = useState(3);
+
+  const loadData = useCallback(async () => {
+    try {
+      const profileSaved = await AsyncStorage.getItem("fitfuel_profile");
+      if (profileSaved) {
+        const profile = JSON.parse(profileSaved);
+        if (profile.name) setUserName(profile.name);
+      }
+    } catch {
+      console.log("Could not load profile");
+    }
+
+    try {
+      const fuelSaved = await AsyncStorage.getItem("fitfuel_fuel_data");
+      if (fuelSaved) {
+        const data = JSON.parse(fuelSaved);
+        setPoints(data.points ?? 0);
+        setWater(data.water ?? 0);
+        setWaterGoal(data.waterGoal ?? 3);
+
+        // Apply same streak reset logic as fuel page
+        const today = new Date().toISOString().split('T')[0];
+        const d = new Date();
+        d.setDate(d.getDate() - 1);
+        const yesterday = d.toISOString().split('T')[0];
+        const loadedLastActive = data.lastActiveDate ?? '';
+        const loadedStreak = data.streak ?? 0;
+        const effectiveStreak =
+          loadedLastActive && loadedLastActive < yesterday ? 0 : loadedStreak;
+        setStreak(effectiveStreak);
+        setLongestStreak(data.longestStreak ?? loadedStreak);
+      }
+    } catch {
+      console.log("Could not load fuel data");
+    }
+  }, []);
 
   useEffect(() => {
-  loadProfile();
-}, []);
+    loadData();
+  }, [loadData]);
 
-const loadProfile = async () => {
-  try {
-    const saved = await AsyncStorage.getItem("fitfuel_profile");
-
-    if (saved) {
-      const profile = JSON.parse(saved);
-
-      if (profile.name) {
-        setUserName(profile.name);
-      }
-    }
-  } catch {
-    console.log("Could not load profile");
-  }
-};
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
@@ -53,19 +85,20 @@ const loadProfile = async () => {
       <View style={styles.summaryRow}>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryEmoji}>🔥</Text>
-          <Text style={styles.summaryValue}>2</Text>
-          <Text style={styles.summaryLabel}>Day Streak</Text>
+          <Text style={styles.summaryValue}>{streak}</Text>
+          <Text style={styles.summaryLabel}>Streak</Text>
+          <Text style={styles.summarySubLabel}>Best: {longestStreak}</Text>
         </View>
 
         <View style={styles.summaryCard}>
           <Text style={styles.summaryEmoji}>⭐</Text>
-          <Text style={styles.summaryValue}>150</Text>
+          <Text style={styles.summaryValue}>{points}</Text>
           <Text style={styles.summaryLabel}>Points</Text>
         </View>
 
         <View style={styles.summaryCard}>
           <Text style={styles.summaryEmoji}>💧</Text>
-          <Text style={styles.summaryValue}>1/3</Text>
+          <Text style={styles.summaryValue}>{water}/{waterGoal}</Text>
           <Text style={styles.summaryLabel}>Water</Text>
         </View>
       </View>
@@ -188,6 +221,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: "#5B6475",
     marginTop: 4,
+    textAlign: "center",
+  },
+  summarySubLabel: {
+    fontSize: 10,
+    color: "#8B95A5",
     textAlign: "center",
   },
   actionCard: {
