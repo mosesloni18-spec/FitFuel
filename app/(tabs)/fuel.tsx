@@ -26,12 +26,12 @@ export default function FuelScreen() {
   const [protein, setProtein] = useState(25);
   const [water, setWater] = useState(1);
   const [points, setPoints] = useState(150);
-  const [streak, setStreak] = useState(2);
+  const [streak, setStreak] = useState(0);
   const [walkDone, setWalkDone] = useState(false);
   const [waterGoalDone, setWaterGoalDone] = useState(false);
   const [calorieGoalDone, setCalorieGoalDone] = useState(false);
   const [proteinGoalDone, setProteinGoalDone] = useState(false);
-  const [longestStreak, setLongestStreak] = useState(2);
+  const [longestStreak, setLongestStreak] = useState(0);
   const [lastActiveDate, setLastActiveDate] = useState('');
 
   const [calorieGoal, setCalorieGoal] = useState(500);
@@ -84,14 +84,10 @@ export default function FuelScreen() {
             setProteinGoalDone(false);
           }
 
-          // Reset streak if user missed a day
-          const loadedStreak = data.streak ?? 2;
+          const loadedStreak = data.streak ?? 0;
           const loadedLongest = data.longestStreak ?? loadedStreak;
-          const yesterday = getYesterday();
-          const effectiveStreak =
-            loadedLastActive && loadedLastActive < yesterday ? 0 : loadedStreak;
 
-          setStreak(effectiveStreak);
+          setStreak(loadedStreak);
           setLongestStreak(loadedLongest);
           setLastActiveDate(loadedLastActive);
         }
@@ -300,8 +296,8 @@ export default function FuelScreen() {
     setProtein(25);
     setWater(1);
     setPoints(150);
-    setStreak(2);
-    setLongestStreak(2);
+    setStreak(0);
+    setLongestStreak(0);
     setLastActiveDate('');
     setWalkDone(false);
     setWaterGoalDone(false);
@@ -320,6 +316,8 @@ export default function FuelScreen() {
 
     await AsyncStorage.removeItem(STORAGE_KEY);
   };
+
+  const displayedStreak = lastActiveDate === getToday() ? streak : 0;
 
   const caloriePercent = Math.min((calories / calorieGoal) * 100, 100);
   const proteinPercent = Math.min((protein / proteinGoal) * 100, 100);
@@ -509,7 +507,7 @@ export default function FuelScreen() {
       <View style={styles.streakCard}>
         <Text style={styles.fire}>🔥</Text>
         <View>
-          <Text style={styles.streakTitle}>{streak} Day Streak!</Text>
+          <Text style={styles.streakTitle}>{displayedStreak} Day Streak!</Text>
           <Text style={styles.streakSmall}>Longest: {longestStreak} days</Text>
           <Text style={styles.streakText}>Points: {points}</Text>
         </View>

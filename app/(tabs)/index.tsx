@@ -38,16 +38,11 @@ export default function HomeScreen() {
         setWater(data.water ?? 0);
         setWaterGoal(data.waterGoal ?? 3);
 
-        // Apply same streak reset logic as fuel page
         const today = new Date().toISOString().split('T')[0];
-        const d = new Date();
-        d.setDate(d.getDate() - 1);
-        const yesterday = d.toISOString().split('T')[0];
         const loadedLastActive = data.lastActiveDate ?? '';
         const loadedStreak = data.streak ?? 0;
-        const effectiveStreak =
-          loadedLastActive && loadedLastActive < yesterday ? 0 : loadedStreak;
-        setStreak(effectiveStreak);
+        const displayedStreak = loadedLastActive === today ? loadedStreak : 0;
+        setStreak(displayedStreak);
         setLongestStreak(data.longestStreak ?? loadedStreak);
       }
     } catch {
