@@ -144,9 +144,8 @@ Currently at **Sprint 2**.
 
 | Feature               | Developer |
 | --------------------- | --------- |
-| Home Page             | Moses     |
+| Home & Profile        | Moses     |
 | Fuel Page             | Soyeon    |
-| Profile Page          | Soyeon    |
 | Routines Page         | Lana      |
 | Friends & Leaderboard | Eilmar    |
 
