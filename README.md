@@ -26,9 +26,12 @@ Currently at **Sprint 2**.
 
 ## 🏠 Home Page (Moses)
 
-- Live daily summary (current streak, longest streak, points, water intake)
-- Quick navigation to Fuel page
-- Daily task overview
+- Displays live daily summary including streak, longest streak, points, and water intake
+- Loads real data from AsyncStorage and updates when the screen is focused
+- Shows personalised welcome message using user profile data
+- Includes quick navigation to Fuel page
+- Contains daily task cards (walking and hydration)
+- Includes a simulated reminder that shows a pop-up alert with a small fitness task to encourage daily habits
 
 ## 🚀 Onboarding Screen (Moses)
 
@@ -162,6 +165,15 @@ Currently at **Sprint 2**.
 - Returning users are automatically redirected to the main application tabs
 - Designed with a clean and mobile-friendly UI consistent with the FitFuel theme
 - The onboarding experience helps new users quickly understand the purpose and core functionality of the application before entering the main system.
+
+## 🔹 Reminder Feature (Moses)
+
+- Implemented a simulated daily reminder system using Alert
+- Automatically triggers a notification-style pop-up after a set time interval
+- Provides users with a short actionable fitness task (e.g. walking or hydration reminder)
+- Helps reinforce daily habit building and user engagement
+- Designed to meet user story requirements for “task reminders”
+- Works within Expo Go without requiring external push notification setup
 
 ---
 
