@@ -17,10 +17,9 @@ type Friend = {
   email: string;
 };
 
-// Android emulator uses 10.0.2.2 to connect to your computer localhost
 const API_URL = "http://10.0.2.2:3001";
 
-// If testing on web, use this instead:
+// If testing ur on web use
 // const API_URL = "http://localhost:3001";
 
 export default function FriendsScreen() {

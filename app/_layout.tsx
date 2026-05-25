@@ -1,4 +1,8 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import {
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+} from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
@@ -15,13 +19,30 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
         <Stack.Screen
-    name="profile"
-    options={{
-      headerShown: true,
-      title: "Profile",
-    }}
-  />
+          name="profile"
+          options={{
+            headerShown: true,
+            title: "Profile",
+          }}
+        />
+
+        <Stack.Screen
+          name="privacy"
+          options={{
+            headerShown: true,
+            title: "Privacy Settings",
+          }}
+        />
+
+        <Stack.Screen
+          name="friend-profile"
+          options={{
+            headerShown: true,
+            title: "Friend View",
+          }}
+        />
       </Stack>
+
       <StatusBar style="auto" />
     </ThemeProvider>
   );

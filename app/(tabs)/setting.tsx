@@ -1,10 +1,5 @@
 import { router } from "expo-router";
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function SettingScreen() {
   return (
@@ -16,11 +11,18 @@ export default function SettingScreen() {
         onPress={() => router.push("/profile")}
       >
         <Text style={styles.cardTitle}>👤 Profile</Text>
-        <Text style={styles.cardText}>
-          Manage your personal information
-        </Text>
+        <Text style={styles.cardText}>Manage your personal information</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push("/privacy" as any)}
+      >
+        <Text style={styles.cardTitle}>🔒 Privacy Settings</Text>
+        <Text style={styles.cardText}>
+          Control what information friends can see
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

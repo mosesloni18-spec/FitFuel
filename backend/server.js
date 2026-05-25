@@ -16,25 +16,25 @@ const users = [
     id: 1,
     name: "Eilmar Shaba",
     username: "eilmar",
-    email: "eilmars@hotmail.com",
+    email: "cqv4124@autuni.ac.nz",
   },
   {
     id: 2,
     name: "Moses Loni",
     username: "moses",
-    email: "moses@fitfuel.com",
+    email: "jqp8369@autuni.ac.nz",
   },
   {
     id: 3,
     name: "Lana Smith",
     username: "lana",
-    email: "lana@fitfuel.com",
+    email: "jgt2603@autuni.ac.nz",
   },
   {
     id: 4,
     name: "Soyeon Im",
     username: "soyeon",
-    email: "soyeon@fitfuel.com",
+    email: "hpr7339@autuni.ac.nz",
   },
 ];
 
@@ -53,8 +53,15 @@ const sendInviteEmail = async (toEmail, invitedUserName) => {
   await transporter.sendMail({
     from: `"FitFuel" <${process.env.EMAIL_USER}>`,
     to: toEmail,
-    subject: "You have a FitFuel friend request",
-    text: `Hi ${invitedUserName}, you have received a friend request on FitFuel. Open the app to accept or decline it.`,
+    subject: "New friend request on FitFuel",
+    text: `Hey ${invitedUserName}, 
+
+you have received a friend request on FitFuel! 
+
+Open the app to accept or decline it.
+
+Thanks,
+The FitFuel Team`,
   });
 };
 
