@@ -12,6 +12,12 @@ import {
 
 const STORAGE_KEY = "fitfuel_fuel_data";
 
+const WALK_POINTS = 50;
+const WATER_POINTS = 20;
+const CALORIE_GOAL_POINTS = 10;
+const PROTEIN_GOAL_POINTS = 10;
+const WALK_CALORIE_BURN = 80;
+
 const getToday = () => new Date().toISOString().split('T')[0];
 const getYesterday = () => {
   const d = new Date();
@@ -22,10 +28,10 @@ const getYesterday = () => {
 export default function FuelScreen() {
   const hasLoaded = useRef(false);
 
-  const [calories, setCalories] = useState(250);
-  const [protein, setProtein] = useState(25);
-  const [water, setWater] = useState(1);
-  const [points, setPoints] = useState(150);
+  const [calories, setCalories] = useState(0);
+  const [protein, setProtein] = useState(0);
+  const [water, setWater] = useState(0);
+  const [points, setPoints] = useState(0);
   const [streak, setStreak] = useState(0);
   const [walkDone, setWalkDone] = useState(false);
   const [waterGoalDone, setWaterGoalDone] = useState(false);
@@ -56,10 +62,10 @@ export default function FuelScreen() {
         if (saved) {
           const data = JSON.parse(saved);
 
-          setCalories(data.calories ?? 250);
-          setProtein(data.protein ?? 25);
-          setWater(data.water ?? 1);
-          setPoints(data.points ?? 150);
+          setCalories(data.calories ?? 0);
+          setProtein(data.protein ?? 0);
+          setWater(data.water ?? 0);
+          setPoints(data.points ?? 0);
 
           setCalorieGoal(data.calorieGoal ?? 500);
           setProteinGoal(data.proteinGoal ?? 50);
@@ -169,11 +175,11 @@ export default function FuelScreen() {
 
     const newCalories = Math.min(calories + amount, calorieGoal);
     setCalories(newCalories);
-    setPoints((prev) => prev + 10);
     setCalorieInput("");
 
     if (newCalories >= calorieGoal && !calorieGoalDone) {
       setCalorieGoalDone(true);
+      setPoints((prev) => prev + CALORIE_GOAL_POINTS);
       completeStreak();
     }
   };
@@ -188,11 +194,11 @@ export default function FuelScreen() {
 
     const newProtein = Math.min(protein + amount, proteinGoal);
     setProtein(newProtein);
-    setPoints((prev) => prev + 10);
     setProteinInput("");
 
     if (newProtein >= proteinGoal && !proteinGoalDone) {
       setProteinGoalDone(true);
+      setPoints((prev) => prev + PROTEIN_GOAL_POINTS);
       completeStreak();
     }
   };
@@ -208,7 +214,7 @@ export default function FuelScreen() {
 
     const newWater = water + 1;
     setWater(newWater);
-    setPoints((prev) => prev + 20);
+    setPoints((prev) => prev + WATER_POINTS);
 
     if (newWater >= waterGoal && !waterGoalDone) {
       setWaterGoalDone(true);
@@ -230,11 +236,11 @@ export default function FuelScreen() {
     }
 
     setWalkDone(true);
-    setCalories((prev) => Math.min(prev + 80, calorieGoal));
-    setPoints((prev) => prev + 50);
+    setCalories((prev) => Math.min(prev + WALK_CALORIE_BURN, calorieGoal));
+    setPoints((prev) => prev + WALK_POINTS);
     completeStreak();
 
-    Alert.alert("Great job!", "Walking task completed. +50 points!");
+    Alert.alert("Great job!", `Walking task completed. +${WALK_POINTS} points!`);
   };
 
   const updateGoals = () => {
@@ -291,30 +297,43 @@ export default function FuelScreen() {
   Alert.alert("Goals Updated", "Calculated from your height and weight");
   };
 
-  const resetData = async () => {
-    setCalories(250);
-    setProtein(25);
-    setWater(1);
-    setPoints(150);
-    setStreak(0);
-    setLongestStreak(0);
-    setLastActiveDate('');
-    setWalkDone(false);
-    setWaterGoalDone(false);
-    setCalorieGoalDone(false);
-    setProteinGoalDone(false);
+  const resetData = () => {
+    Alert.alert(
+      "Reset All Data",
+      "This will permanently clear all your points, streaks, and intake. Are you sure?",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            setCalories(0);
+            setProtein(0);
+            setWater(0);
+            setPoints(0);
+            setStreak(0);
+            setLongestStreak(0);
+            setLastActiveDate('');
+            setWalkDone(false);
+            setWaterGoalDone(false);
+            setCalorieGoalDone(false);
+            setProteinGoalDone(false);
 
-    setCalorieGoal(500);
-    setProteinGoal(50);
-    setWaterGoal(3);
+            setCalorieGoal(500);
+            setProteinGoal(50);
+            setWaterGoal(3);
 
-    setCalorieInput("");
-    setProteinInput("");
-    setCalorieGoalInput("500");
-    setProteinGoalInput("50");
-    setWaterGoalInput("3");
+            setCalorieInput("");
+            setProteinInput("");
+            setCalorieGoalInput("500");
+            setProteinGoalInput("50");
+            setWaterGoalInput("3");
 
-    await AsyncStorage.removeItem(STORAGE_KEY);
+            await AsyncStorage.removeItem(STORAGE_KEY);
+          },
+        },
+      ],
+    );
   };
 
   const displayedStreak = lastActiveDate === getToday() ? streak : 0;
