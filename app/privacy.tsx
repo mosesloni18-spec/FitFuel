@@ -2,14 +2,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-const PRIVACY_KEY = "fitfuel_privacy_settings";
+type User = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+};
 
 type PrivacySettings = {
   showName: boolean;
@@ -21,6 +26,8 @@ type PrivacySettings = {
 };
 
 export default function PrivacyScreen() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
   const [showName, setShowName] = useState(true);
   const [showEmail, setShowEmail] = useState(false);
   const [showPoints, setShowPoints] = useState(true);
@@ -33,8 +40,21 @@ export default function PrivacyScreen() {
     loadSettings();
   }, []);
 
+  const getPrivacyKey = (userId: number) => {
+    return `fitfuel_privacy_settings_${userId}`;
+  };
+
   const loadSettings = async () => {
-    const saved = await AsyncStorage.getItem(PRIVACY_KEY);
+    const savedUser = await AsyncStorage.getItem("fitfuel_current_user");
+
+    if (!savedUser) {
+      return;
+    }
+
+    const user: User = JSON.parse(savedUser);
+    setCurrentUser(user);
+
+    const saved = await AsyncStorage.getItem(getPrivacyKey(user.id));
 
     if (saved) {
       const settings: PrivacySettings = JSON.parse(saved);
@@ -49,6 +69,11 @@ export default function PrivacyScreen() {
   };
 
   const saveSettings = async () => {
+    if (!currentUser) {
+      setMessage("No logged in user found");
+      return;
+    }
+
     const settings: PrivacySettings = {
       showName,
       showEmail,
@@ -58,7 +83,10 @@ export default function PrivacyScreen() {
       showGoal,
     };
 
-    await AsyncStorage.setItem(PRIVACY_KEY, JSON.stringify(settings));
+    await AsyncStorage.setItem(
+      getPrivacyKey(currentUser.id),
+      JSON.stringify(settings),
+    );
 
     setMessage("Privacy settings saved");
 
@@ -74,6 +102,10 @@ export default function PrivacyScreen() {
       <Text style={styles.subtitle}>
         Choose what information friends can see.
       </Text>
+
+      {currentUser && (
+        <Text style={styles.accountText}>Account: @{currentUser.username}</Text>
+      )}
 
       <View style={styles.card}>
         <TouchableOpacity
@@ -179,7 +211,13 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#5B6475",
     textAlign: "center",
-    marginBottom: 24,
+    marginBottom: 8,
+  },
+  accountText: {
+    textAlign: "center",
+    color: "#5B6475",
+    fontWeight: "700",
+    marginBottom: 20,
   },
   card: {
     backgroundColor: "#FFFFFF",

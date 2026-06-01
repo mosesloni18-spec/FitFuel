@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function OnboardingScreen() {
   const [step, setStep] = useState(0);
@@ -34,7 +34,7 @@ export default function OnboardingScreen() {
 
   const finish = async () => {
     await AsyncStorage.setItem("seenOnboarding", "true");
-    router.replace("/(tabs)");
+    router.replace("/auth" as any);
   };
 
   return (
@@ -48,13 +48,7 @@ export default function OnboardingScreen() {
       {/* dots */}
       <View style={styles.dots}>
         {pages.map((_, i) => (
-          <View
-            key={i}
-            style={[
-              styles.dot,
-              step === i && styles.activeDot
-            ]}
-          />
+          <View key={i} style={[styles.dot, step === i && styles.activeDot]} />
         ))}
       </View>
 

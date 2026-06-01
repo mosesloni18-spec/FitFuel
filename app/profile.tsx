@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   Alert,
   ScrollView,
@@ -10,10 +11,18 @@ import {
   View,
 } from "react-native";
 
-const STORAGE_KEY = "fitfuel_profile";
 const FUEL_KEY = "fitfuel_fuel_data";
 
+type User = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+};
+
 export default function ProfileScreen() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
   const [name, setName] = useState("");
   const [age, setAge] = useState("");
   const [height, setHeight] = useState("");
@@ -22,14 +31,29 @@ export default function ProfileScreen() {
   const [bio, setBio] = useState("");
   const [points, setPoints] = useState(0);
 
-  useEffect(() => {
-    loadProfile();
-    loadPoints();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadProfile();
+      loadPoints();
+    }, []),
+  );
+
+  const getProfileKey = (userId: number) => {
+    return `fitfuel_profile_${userId}`;
+  };
 
   const loadProfile = async () => {
     try {
-      const saved = await AsyncStorage.getItem(STORAGE_KEY);
+      const savedUser = await AsyncStorage.getItem("fitfuel_current_user");
+
+      if (!savedUser) {
+        return;
+      }
+
+      const user: User = JSON.parse(savedUser);
+      setCurrentUser(user);
+
+      const saved = await AsyncStorage.getItem(getProfileKey(user.id));
 
       if (saved) {
         const profile = JSON.parse(saved);
@@ -40,6 +64,9 @@ export default function ProfileScreen() {
         setWeight(profile.weight || "");
         setGoal(profile.goal || "");
         setBio(profile.bio || "");
+      } else {
+        // if no profile saved yet, use account name as default
+        setName(user.name || "");
       }
     } catch {
       Alert.alert("Error", "Could not load profile");
@@ -49,6 +76,7 @@ export default function ProfileScreen() {
   const loadPoints = async () => {
     try {
       const saved = await AsyncStorage.getItem(FUEL_KEY);
+
       if (saved) {
         const data = JSON.parse(saved);
         setPoints(data.points ?? 0);
@@ -60,6 +88,11 @@ export default function ProfileScreen() {
 
   const saveProfile = async () => {
     try {
+      if (!currentUser) {
+        Alert.alert("Error", "No logged in user found");
+        return;
+      }
+
       const profile = {
         name,
         age,
@@ -70,8 +103,8 @@ export default function ProfileScreen() {
       };
 
       await AsyncStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(profile)
+        getProfileKey(currentUser.id),
+        JSON.stringify(profile),
       );
 
       Alert.alert("Success", "Profile saved successfully");
@@ -83,6 +116,10 @@ export default function ProfileScreen() {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
       <Text style={styles.title}>My Profile</Text>
+
+      {currentUser && (
+        <Text style={styles.accountText}>Account: @{currentUser.username}</Text>
+      )}
 
       <View style={styles.card}>
         <Text style={styles.label}>Name</Text>
@@ -181,7 +218,14 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: "#192033",
     textAlign: "center",
-    marginBottom: 20,
+    marginBottom: 8,
+  },
+
+  accountText: {
+    textAlign: "center",
+    color: "#5B6475",
+    fontWeight: "700",
+    marginBottom: 18,
   },
 
   card: {

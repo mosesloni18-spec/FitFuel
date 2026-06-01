@@ -3,9 +3,14 @@ import { useFocusEffect } from "expo-router";
 import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 
-const PRIVACY_KEY = "fitfuel_privacy_settings";
-const PROFILE_KEY = "fitfuel_profile";
 const FUEL_KEY = "fitfuel_fuel_data";
+
+type User = {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+};
 
 export default function FriendProfileScreen() {
   const [showName, setShowName] = useState(true);
@@ -29,8 +34,27 @@ export default function FriendProfileScreen() {
     }, []),
   );
 
+  const getProfileKey = (userId: number) => {
+    return `fitfuel_profile_${userId}`;
+  };
+
+  const getPrivacyKey = (userId: number) => {
+    return `fitfuel_privacy_settings_${userId}`;
+  };
+
   const loadData = async () => {
-    const savedPrivacy = await AsyncStorage.getItem(PRIVACY_KEY);
+    const savedUser = await AsyncStorage.getItem("fitfuel_current_user");
+
+    if (!savedUser) {
+      return;
+    }
+
+    const user: User = JSON.parse(savedUser);
+
+    setName(user.name || "User");
+    setEmail(user.email || "user@fitfuel.com");
+
+    const savedPrivacy = await AsyncStorage.getItem(getPrivacyKey(user.id));
 
     if (savedPrivacy) {
       const privacy = JSON.parse(savedPrivacy);
@@ -43,13 +67,12 @@ export default function FriendProfileScreen() {
       setShowGoal(privacy.showGoal);
     }
 
-    const savedProfile = await AsyncStorage.getItem(PROFILE_KEY);
+    const savedProfile = await AsyncStorage.getItem(getProfileKey(user.id));
 
     if (savedProfile) {
       const profile = JSON.parse(savedProfile);
 
       if (profile.name) setName(profile.name);
-      if (profile.email) setEmail(profile.email);
       if (profile.goal) setGoal(profile.goal);
     }
 

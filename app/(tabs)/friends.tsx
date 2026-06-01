@@ -1,5 +1,6 @@
-import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   Modal,
   ScrollView,
@@ -10,36 +11,60 @@ import {
   View,
 } from "react-native";
 
-type Friend = {
+type User = {
   id: number;
   name: string;
   username: string;
   email: string;
 };
 
+type FriendRequest = {
+  id: number;
+  fromUser: User;
+};
+
+// use http://10.0.2.2:3001 if using simulator
+// Use device ipv4 address if using real phone (http://*ipv4_address*:3001)
 const API_URL = "http://10.0.2.2:3001";
 
-// If testing ur on web use
-// const API_URL = "http://localhost:3001";
-
 export default function FriendsScreen() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [inviteInput, setInviteInput] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
-  const [pendingRequests, setPendingRequests] = useState<Friend[]>([]);
-  const [friends, setFriends] = useState<Friend[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<FriendRequest[]>([]);
+  const [friends, setFriends] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    loadFriendsData();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      loadUserAndFriends();
+    }, []),
+  );
 
-  const loadFriendsData = async () => {
+  const loadUserAndFriends = async () => {
+    const savedUser = await AsyncStorage.getItem("fitfuel_current_user");
+
+    if (!savedUser) {
+      router.replace("/auth" as any);
+      return;
+    }
+
+    const user = JSON.parse(savedUser);
+    setCurrentUser(user);
+
+    loadFriendsData(user.id);
+  };
+
+  const loadFriendsData = async (userId: number) => {
     try {
-      const requestsResponse = await fetch(`${API_URL}/friend-requests`);
-      const friendsResponse = await fetch(`${API_URL}/friends`);
+      const requestsResponse = await fetch(
+        `${API_URL}/friend-requests/${userId}`,
+      );
+      const friendsResponse = await fetch(`${API_URL}/friends/${userId}`);
 
       const requestsData = await requestsResponse.json();
       const friendsData = await friendsResponse.json();
@@ -52,6 +77,11 @@ export default function FriendsScreen() {
   };
 
   const sendInvite = async () => {
+    if (!currentUser) {
+      setErrorMessage("Please login first.");
+      return;
+    }
+
     if (inviteInput.trim() === "") {
       setErrorMessage("Please enter a username or email.");
       return;
@@ -66,6 +96,7 @@ export default function FriendsScreen() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          fromUserId: currentUser.id,
           searchText: inviteInput.trim(),
         }),
       });
@@ -81,13 +112,13 @@ export default function FriendsScreen() {
       setInviteInput("");
       setErrorMessage("");
       setShowInviteModal(false);
-      setSuccessMessage("Friend request sent");
+      setSuccessMessage(data.message);
 
-      await loadFriendsData();
+      await loadFriendsData(currentUser.id);
 
       setTimeout(() => {
         setSuccessMessage("");
-      }, 2000);
+      }, 2500);
     } catch {
       setErrorMessage("Could not send friend request.");
     }
@@ -95,7 +126,9 @@ export default function FriendsScreen() {
     setLoading(false);
   };
 
-  const acceptRequest = async (user: Friend) => {
+  const acceptRequest = async (request: FriendRequest) => {
+    if (!currentUser) return;
+
     try {
       await fetch(`${API_URL}/friend-request/accept`, {
         method: "POST",
@@ -103,22 +136,24 @@ export default function FriendsScreen() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: user.id,
+          requestId: request.id,
         }),
       });
 
-      setSuccessMessage(`${user.name} added as a friend`);
-      await loadFriendsData();
+      setSuccessMessage(`${request.fromUser.name} added as a friend`);
+      await loadFriendsData(currentUser.id);
 
       setTimeout(() => {
         setSuccessMessage("");
-      }, 2000);
+      }, 2500);
     } catch {
       setSuccessMessage("Could not accept request.");
     }
   };
 
-  const declineRequest = async (user: Friend) => {
+  const declineRequest = async (request: FriendRequest) => {
+    if (!currentUser) return;
+
     try {
       await fetch(`${API_URL}/friend-request/decline`, {
         method: "POST",
@@ -126,30 +161,18 @@ export default function FriendsScreen() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: user.id,
+          requestId: request.id,
         }),
       });
 
-      await loadFriendsData();
-    } catch {
-      setSuccessMessage("Could not decline request.");
-    }
-  };
-
-  const resetDemoData = async () => {
-    try {
-      await fetch(`${API_URL}/reset`, {
-        method: "POST",
-      });
-
-      setSuccessMessage("Friends data reset");
-      await loadFriendsData();
+      setSuccessMessage("Friend request declined");
+      await loadFriendsData(currentUser.id);
 
       setTimeout(() => {
         setSuccessMessage("");
       }, 2000);
     } catch {
-      setSuccessMessage("Could not reset data.");
+      setSuccessMessage("Could not decline request.");
     }
   };
 
@@ -160,38 +183,19 @@ export default function FriendsScreen() {
         contentContainerStyle={styles.container}
       >
         <Text style={styles.title}>Friends</Text>
+
         <Text style={styles.subtitle}>
-          Invite friends to FitFuel so you can motivate each other.
+          {currentUser
+            ? `Logged in as @${currentUser.username}`
+            : "Invite friends to FitFuel"}
         </Text>
 
         <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>Test users</Text>
+          <Text style={styles.infoTitle}>Search users</Text>
           <Text style={styles.infoText}>
-            Try: moses, lana, soyeon, or eilmar
+            Use a username or email to send a friend request.
           </Text>
         </View>
-
-        {friends.length === 0 ? (
-          <View style={styles.emptyCard}>
-            <Text style={styles.emptyEmoji}>👥</Text>
-            <Text style={styles.emptyTitle}>No friends added yet</Text>
-            <Text style={styles.emptyText}>
-              Search for a FitFuel user by username or email and send them a
-              friend request.
-            </Text>
-          </View>
-        ) : (
-          <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Your Friends</Text>
-
-            {friends.map((friend) => (
-              <View key={friend.id} style={styles.friendRow}>
-                <Text style={styles.friendText}>✅ {friend.name}</Text>
-                <Text style={styles.smallText}>@{friend.username}</Text>
-              </View>
-            ))}
-          </View>
-        )}
 
         <TouchableOpacity
           style={styles.inviteButton}
@@ -200,15 +204,23 @@ export default function FriendsScreen() {
           <Text style={styles.inviteButtonText}>Invite Friend</Text>
         </TouchableOpacity>
 
+        {errorMessage !== "" && (
+          <View style={styles.messageBox}>
+            <Text style={styles.errorMessageText}>{errorMessage}</Text>
+          </View>
+        )}
+
         {pendingRequests.length > 0 && (
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Pending Requests</Text>
+            <Text style={styles.sectionTitle}>Friend Requests</Text>
 
             {pendingRequests.map((request) => (
               <View key={request.id} style={styles.pendingBox}>
-                <Text style={styles.pendingName}>{request.name}</Text>
-                <Text style={styles.smallText}>@{request.username}</Text>
-                <Text style={styles.smallText}>{request.email}</Text>
+                <Text style={styles.pendingName}>{request.fromUser.name}</Text>
+                <Text style={styles.smallText}>
+                  @{request.fromUser.username}
+                </Text>
+                <Text style={styles.smallText}>{request.fromUser.email}</Text>
 
                 <View style={styles.pendingButtons}>
                   <TouchableOpacity
@@ -230,6 +242,28 @@ export default function FriendsScreen() {
           </View>
         )}
 
+        <View style={styles.sectionCard}>
+          <Text style={styles.sectionTitle}>Your Friends</Text>
+
+          {friends.length === 0 ? (
+            <View style={styles.emptyCardSmall}>
+              <Text style={styles.emptyEmoji}>👥</Text>
+              <Text style={styles.emptyTitle}>No friends added yet</Text>
+              <Text style={styles.emptyText}>
+                Search for a FitFuel user by username or email and send them a
+                friend request.
+              </Text>
+            </View>
+          ) : (
+            friends.map((friend) => (
+              <View key={friend.id} style={styles.friendRow}>
+                <Text style={styles.friendText}>👤 {friend.name}</Text>
+                <Text style={styles.smallText}>@{friend.username}</Text>
+              </View>
+            ))
+          )}
+        </View>
+
         <TouchableOpacity
           style={styles.leaderboardCard}
           onPress={() => router.push("/(tabs)/leaderboard")}
@@ -242,10 +276,6 @@ export default function FriendsScreen() {
           </View>
 
           <Text style={styles.arrow}>→</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.resetButton} onPress={resetDemoData}>
-          <Text style={styles.resetText}>Reset Friends Demo Data</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -267,6 +297,7 @@ export default function FriendsScreen() {
                 setInviteInput(text);
                 setErrorMessage("");
               }}
+              autoCapitalize="none"
             />
 
             {errorMessage !== "" && (
@@ -345,33 +376,6 @@ const styles = StyleSheet.create({
     color: "#5B6475",
     marginTop: 4,
   },
-  emptyCard: {
-    backgroundColor: "#FFFFFF",
-    borderRadius: 22,
-    padding: 24,
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 4,
-    marginBottom: 18,
-  },
-  emptyEmoji: {
-    fontSize: 52,
-    marginBottom: 12,
-  },
-  emptyTitle: {
-    fontSize: 22,
-    fontWeight: "900",
-    color: "#192033",
-    marginBottom: 8,
-  },
-  emptyText: {
-    fontSize: 14,
-    color: "#5B6475",
-    textAlign: "center",
-    lineHeight: 20,
-  },
   inviteButton: {
     backgroundColor: "#11A9D8",
     borderRadius: 18,
@@ -383,6 +387,17 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontSize: 17,
     fontWeight: "900",
+  },
+  messageBox: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 18,
+  },
+  errorMessageText: {
+    color: "red",
+    fontWeight: "800",
+    textAlign: "center",
   },
   sectionCard: {
     backgroundColor: "#FFFFFF",
@@ -399,6 +414,26 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     color: "#192033",
     marginBottom: 12,
+  },
+  emptyCardSmall: {
+    alignItems: "center",
+    paddingVertical: 10,
+  },
+  emptyEmoji: {
+    fontSize: 45,
+    marginBottom: 10,
+  },
+  emptyTitle: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#192033",
+    marginBottom: 8,
+  },
+  emptyText: {
+    fontSize: 14,
+    color: "#5B6475",
+    textAlign: "center",
+    lineHeight: 20,
   },
   friendRow: {
     marginBottom: 12,
@@ -479,16 +514,6 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "900",
     color: "#11A9D8",
-  },
-  resetButton: {
-    backgroundColor: "#192033",
-    borderRadius: 16,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  resetText: {
-    color: "#FFFFFF",
-    fontWeight: "900",
   },
   modalBackground: {
     flex: 1,
