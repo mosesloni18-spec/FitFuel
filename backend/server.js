@@ -22,6 +22,7 @@ const defaultData = {
       username: "eilmar",
       email: "cqv4124@autuni.ac.nz",
       password: "123",
+      points: 50,
     },
     {
       id: 2,
@@ -29,6 +30,7 @@ const defaultData = {
       username: "moses",
       email: "jqp8369@autuni.ac.nz",
       password: "123",
+      points: 75,
     },
     {
       id: 3,
@@ -36,6 +38,7 @@ const defaultData = {
       username: "lana",
       email: "jgt2603@autuni.ac.nz",
       password: "123",
+      points: 100,
     },
     {
       id: 4,
@@ -43,6 +46,7 @@ const defaultData = {
       username: "soyeon",
       email: "hpr7339@autuni.ac.nz",
       password: "123",
+      points: 125,
     },
   ],
   friendRequests: [],
@@ -137,6 +141,7 @@ app.post("/register", (req, res) => {
     username,
     email,
     password,
+    points: 0,
   };
 
   data.users.push(newUser);
@@ -194,6 +199,22 @@ app.get("/users/:currentUserId", (req, res) => {
   const users = data.users.filter((user) => user.id !== currentUserId);
 
   res.json(users);
+});
+
+// get leaderboard users
+app.get("/leaderboard", (req, res) => {
+  const data = loadData();
+
+  const leaderboard = data.users
+    .map((user) => ({
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      points: user.points || 0,
+    }))
+    .sort((a, b) => b.points - a.points);
+
+  res.json(leaderboard);
 });
 
 // sending friend request

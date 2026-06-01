@@ -2,19 +2,17 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState } from "react";
 import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
-// android emulator uses this to connect to backend localhost
+// use http://10.0.2.2:3001 if using simulator
+// Use device ipv4 address if using real phone (http://*ipv4_address*:3001)
 const API_URL = "http://10.0.2.2:3001";
-
-// if testing on web, use this instead:
-// const API_URL = "http://localhost:3001";
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
