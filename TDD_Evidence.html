@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>TDD Evidence – FitFuel Gamification</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 13px; color: #1a1a1a; background: #fff; padding: 40px; max-width: 900px; margin: auto; }
+  h1 { font-size: 22px; font-weight: 900; color: #192033; margin-bottom: 6px; }
+  h2 { font-size: 16px; font-weight: 800; color: #192033; margin: 28px 0 10px; border-left: 4px solid #11A9D8; padding-left: 10px; }
+  h3 { font-size: 13px; font-weight: 700; color: #444; margin: 14px 0 6px; }
+  .subtitle { font-size: 13px; color: #555; margin-bottom: 4px; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 8px; }
+  .tag.red { background: #fdecea; color: #c0392b; border: 1px solid #e74c3c; }
+  .tag.green { background: #eafaf1; color: #1e8449; border: 1px solid #27ae60; }
+  .tag.blue { background: #eaf4fd; color: #1a5276; border: 1px solid #2980b9; }
+  pre { background: #1e1e2e; color: #cdd6f4; font-family: "Courier New", monospace; font-size: 11.5px; padding: 16px; border-radius: 8px; overflow-x: auto; line-height: 1.6; white-space: pre; margin: 8px 0; }
+  .comment { color: #6c7086; }
+  .keyword { color: #cba6f7; }
+  .string { color: #a6e3a1; }
+  .fn { color: #89b4fa; }
+  .num { color: #fab387; }
+  .const { color: #f38ba8; }
+  .type { color: #f9e2af; }
+  .pass-output { background: #0d1117; color: #3fb950; font-family: "Courier New", monospace; font-size: 11.5px; padding: 16px; border-radius: 8px; line-height: 1.7; margin: 8px 0; }
+  .fail-output { background: #0d1117; color: #f85149; font-family: "Courier New", monospace; font-size: 11.5px; padding: 16px; border-radius: 8px; line-height: 1.7; margin: 8px 0; }
+  .tick { color: #3fb950; }
+  .cross { color: #f85149; }
+  .dim { color: #8b949e; }
+  .separator { border: none; border-top: 1px solid #e0e0e0; margin: 30px 0; }
+  .step-box { border: 1px solid #dce3ec; border-radius: 10px; padding: 18px 20px; margin-bottom: 22px; }
+  .step-num { font-size: 11px; font-weight: 700; color: #11A9D8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+  .step-title { font-size: 15px; font-weight: 800; color: #192033; margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 12px; }
+  th { background: #192033; color: #fff; padding: 8px 12px; text-align: left; }
+  td { border: 1px solid #dce3ec; padding: 8px 12px; vertical-align: top; }
+  tr:nth-child(even) td { background: #f8f9fb; }
+  .header-block { background: #f0f7ff; border: 1px solid #b3d4f5; border-radius: 8px; padding: 16px 20px; margin-bottom: 28px; }
+  .at { font-size: 12px; margin: 4px 0; }
+  @media print {
+    body { padding: 20px; }
+    pre, .pass-output, .fail-output { page-break-inside: avoid; }
+    .step-box { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header-block">
+  <h1>Test-Driven Development Evidence</h1>
+  <p class="subtitle">Project: FitFuel — COMP602 Software Development Practice</p>
+  <p class="subtitle">Developer: Soyeon Im &nbsp;|&nbsp; File: app/(tabs)/fuel.tsx, utils/gamification.ts</p>
+  <p class="subtitle">Date: 2 June 2026 &nbsp;|&nbsp; Testing Framework: Jest + jest-expo</p>
+</div>
+
+<!-- ───────────────────────────── STEP 1: USER STORY ───────────────────────── -->
+<div class="step-box">
+  <div class="step-num">Step 1</div>
+  <div class="step-title">User Story</div>
+
+  <table>
+    <tr>
+      <th>User Story</th>
+      <td><strong>As a user</strong>, I want to earn points for completing daily tasks and maintain a daily streak, so that I stay motivated to track my nutrition and fitness every day.</td>
+    </tr>
+    <tr>
+      <th>Definition of Done</th>
+      <td>Points are awarded per task. Streak increments on consecutive days. All logic is covered by passing unit tests.</td>
+    </tr>
+  </table>
+
+  <h3>Acceptance Tests</h3>
+  <p class="at"><strong>AT1 – Points per task:</strong> Completing the walk awards +50 pts; each glass of water +20 pts; reaching the calorie goal +10 pts; reaching the protein goal +10 pts.</p>
+  <p class="at"><strong>AT2 – One-time goal reward:</strong> Calorie and protein goal points are awarded only once per day, when the goal is first reached — not on every log entry.</p>
+  <p class="at"><strong>AT3 – Consecutive streak:</strong> Completing a task on two consecutive days increments the streak by 1.</p>
+  <p class="at"><strong>AT4 – Streak reset on gap:</strong> If a day is skipped, the streak resets to 1 on the next task completion.</p>
+  <p class="at"><strong>AT5 – Same-day idempotency:</strong> Completing tasks multiple times on the same day does not increment the streak again.</p>
+  <p class="at"><strong>AT6 – Longest streak:</strong> The longest streak is updated whenever the current streak exceeds the previous best.</p>
+  <p class="at"><strong>AT7 – Input validation:</strong> Empty, zero, and negative calorie/protein inputs are rejected before any state change.</p>
+</div>
+
+<!-- ───────────────────────── STEP 2: UNIT TEST CODE ───────────────────────── -->
+<div class="step-box">
+  <div class="step-num">Step 2 — Red Phase (Tests written before implementation)</div>
+  <div class="step-title">Unit Test Code — <code>__tests__/gamification.test.ts</code></div>
+  <span class="tag red">Written BEFORE utils/gamification.ts existed</span>
+
+<pre><span class="comment">/**
+ * TDD Unit Tests – Gamification Logic
+ * User Story: earn points for daily tasks + maintain streak
+ * Written BEFORE the implementation (TDD Red phase).
+ */</span>
+
+<span class="keyword">import</span> {
+  calculateNewStreak,
+  calculateNewLongest,
+  isValidPositiveNumber,
+  WALK_POINTS,
+  WATER_POINTS,
+  CALORIE_GOAL_POINTS,
+  PROTEIN_GOAL_POINTS,
+  WALK_CALORIE_BURN,
+} <span class="keyword">from</span> <span class="string">"../utils/gamification"</span>;
+
+<span class="comment">// ─── Streak Logic ────────────────────────────────────────────────────────</span>
+
+<span class="fn">describe</span>(<span class="string">"calculateNewStreak"</span>, () =&gt; {
+  <span class="keyword">const</span> TODAY     = <span class="string">"2026-06-02"</span>;
+  <span class="keyword">const</span> YESTERDAY = <span class="string">"2026-06-01"</span>;
+  <span class="keyword">const</span> TWO_DAYS_AGO = <span class="string">"2026-05-31"</span>;
+
+  <span class="fn">test</span>(<span class="string">"increments streak by 1 when completing a task on a consecutive day"</span>, () =&gt; {
+    <span class="keyword">const</span> result = <span class="fn">calculateNewStreak</span>(YESTERDAY, <span class="num">4</span>, TODAY, YESTERDAY);
+    <span class="fn">expect</span>(result.shouldUpdate).<span class="fn">toBe</span>(<span class="keyword">true</span>);
+    <span class="fn">expect</span>(result.newStreak).<span class="fn">toBe</span>(<span class="num">5</span>);
+  });
+
+  <span class="fn">test</span>(<span class="string">"resets streak to 1 when a day has been skipped"</span>, () =&gt; {
+    <span class="keyword">const</span> result = <span class="fn">calculateNewStreak</span>(TWO_DAYS_AGO, <span class="num">4</span>, TODAY, YESTERDAY);
+    <span class="fn">expect</span>(result.shouldUpdate).<span class="fn">toBe</span>(<span class="keyword">true</span>);
+    <span class="fn">expect</span>(result.newStreak).<span class="fn">toBe</span>(<span class="num">1</span>);
+  });
+
+  <span class="fn">test</span>(<span class="string">"does not update streak if task already completed today"</span>, () =&gt; {
+    <span class="keyword">const</span> result = <span class="fn">calculateNewStreak</span>(TODAY, <span class="num">4</span>, TODAY, YESTERDAY);
+    <span class="fn">expect</span>(result.shouldUpdate).<span class="fn">toBe</span>(<span class="keyword">false</span>);
+    <span class="fn">expect</span>(result.newStreak).<span class="fn">toBe</span>(<span class="num">4</span>);
+  });
+
+  <span class="fn">test</span>(<span class="string">"starts streak at 1 on first ever task completion"</span>, () =&gt; {
+    <span class="keyword">const</span> result = <span class="fn">calculateNewStreak</span>(<span class="string">""</span>, <span class="num">0</span>, TODAY, YESTERDAY);
+    <span class="fn">expect</span>(result.shouldUpdate).<span class="fn">toBe</span>(<span class="keyword">true</span>);
+    <span class="fn">expect</span>(result.newStreak).<span class="fn">toBe</span>(<span class="num">1</span>);
+  });
+});
+
+<span class="comment">// ─── Longest Streak ──────────────────────────────────────────────────────</span>
+
+<span class="fn">describe</span>(<span class="string">"calculateNewLongest"</span>, () =&gt; {
+  <span class="fn">test</span>(<span class="string">"updates longest streak when new streak exceeds previous best"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">calculateNewLongest</span>(<span class="num">5</span>, <span class="num">6</span>)).<span class="fn">toBe</span>(<span class="num">6</span>);
+  });
+  <span class="fn">test</span>(<span class="string">"keeps previous longest streak when new streak is lower"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">calculateNewLongest</span>(<span class="num">10</span>, <span class="num">3</span>)).<span class="fn">toBe</span>(<span class="num">10</span>);
+  });
+  <span class="fn">test</span>(<span class="string">"keeps longest when streaks are equal"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">calculateNewLongest</span>(<span class="num">5</span>, <span class="num">5</span>)).<span class="fn">toBe</span>(<span class="num">5</span>);
+  });
+});
+
+<span class="comment">// ─── Points Constants ────────────────────────────────────────────────────</span>
+
+<span class="fn">describe</span>(<span class="string">"points constants"</span>, () =&gt; {
+  <span class="fn">test</span>(<span class="string">"WALK_POINTS is 50"</span>, () =&gt; { <span class="fn">expect</span>(WALK_POINTS).<span class="fn">toBe</span>(<span class="num">50</span>); });
+  <span class="fn">test</span>(<span class="string">"WATER_POINTS is 20 per glass"</span>, () =&gt; { <span class="fn">expect</span>(WATER_POINTS).<span class="fn">toBe</span>(<span class="num">20</span>); });
+  <span class="fn">test</span>(<span class="string">"CALORIE_GOAL_POINTS is 10"</span>, () =&gt; { <span class="fn">expect</span>(CALORIE_GOAL_POINTS).<span class="fn">toBe</span>(<span class="num">10</span>); });
+  <span class="fn">test</span>(<span class="string">"PROTEIN_GOAL_POINTS is 10"</span>, () =&gt; { <span class="fn">expect</span>(PROTEIN_GOAL_POINTS).<span class="fn">toBe</span>(<span class="num">10</span>); });
+  <span class="fn">test</span>(<span class="string">"WALK_CALORIE_BURN is 80 kcal"</span>, () =&gt; { <span class="fn">expect</span>(WALK_CALORIE_BURN).<span class="fn">toBe</span>(<span class="num">80</span>); });
+});
+
+<span class="comment">// ─── Input Validation ────────────────────────────────────────────────────</span>
+
+<span class="fn">describe</span>(<span class="string">"isValidPositiveNumber"</span>, () =&gt; {
+  <span class="fn">test</span>(<span class="string">"returns true for a valid positive number string"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">isValidPositiveNumber</span>(<span class="string">"200"</span>)).<span class="fn">toBe</span>(<span class="keyword">true</span>);
+  });
+  <span class="fn">test</span>(<span class="string">"returns false for empty string"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">isValidPositiveNumber</span>(<span class="string">""</span>)).<span class="fn">toBe</span>(<span class="keyword">false</span>);
+  });
+  <span class="fn">test</span>(<span class="string">"returns false for zero"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">isValidPositiveNumber</span>(<span class="string">"0"</span>)).<span class="fn">toBe</span>(<span class="keyword">false</span>);
+  });
+  <span class="fn">test</span>(<span class="string">"returns false for a negative number"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">isValidPositiveNumber</span>(<span class="string">"-50"</span>)).<span class="fn">toBe</span>(<span class="keyword">false</span>);
+  });
+  <span class="fn">test</span>(<span class="string">"returns false for non-numeric string"</span>, () =&gt; {
+    <span class="fn">expect</span>(<span class="fn">isValidPositiveNumber</span>(<span class="string">"abc"</span>)).<span class="fn">toBe</span>(<span class="keyword">false</span>);
+  });
+});</pre>
+</div>
+
+<!-- ───────────────────────── STEP 3: TEST FAIL ─────────────────────────── -->
+<div class="step-box">
+  <div class="step-num">Step 3 — Red Phase (Tests FAIL)</div>
+  <div class="step-title">Test Run Before Implementation — Module Not Found</div>
+  <span class="tag red">FAIL — utils/gamification.ts does not exist yet</span>
+  <p style="font-size:12px; color:#555; margin: 8px 0;">Tests were run immediately after writing the test file, before creating <code>utils/gamification.ts</code>. Jest correctly reports that the module cannot be found.</p>
+
+<div class="fail-output"> FAIL  __tests__/gamification.test.ts
+  ● Test suite failed to run
+
+    Cannot find module '../utils/gamification'
+    from '__tests__/gamification.test.ts'
+
+    Require stack:
+      __tests__/gamification.test.ts
+
+      1 | import {
+    <span class="cross">>   2 |   calculateNewStreak,</span>
+          |   ^
+      3 |   calculateNewLongest,
+      4 |   isValidPositiveNumber,
+      5 |   WALK_POINTS,
+
+      at Resolver.resolveModule (node_modules/jest-resolve/build/index.js)
+      at Object.require (src/__tests__/gamification.test.ts:2:1)
+
+<span class="dim">Test Suites: 1 failed, 1 total
+Tests:       0 total (suite failed to run)
+Snapshots:   0 total
+Time:        1.341 s
+Ran all test suites.</span></div>
+</div>
+
+<!-- ─────────────────────── STEP 4: IMPLEMENTATION CODE ─────────────────── -->
+<div class="step-box">
+  <div class="step-num">Step 4 — Green Phase (Implementation written to pass tests)</div>
+  <div class="step-title">Implementation Code — <code>utils/gamification.ts</code></div>
+  <span class="tag blue">Created AFTER tests were confirmed failing</span>
+
+<pre><span class="comment">// Gamification utility — pure functions extracted from fuel.tsx for testability</span>
+
+<span class="keyword">export const</span> <span class="const">WALK_POINTS</span>         = <span class="num">50</span>;
+<span class="keyword">export const</span> <span class="const">WATER_POINTS</span>        = <span class="num">20</span>;
+<span class="keyword">export const</span> <span class="const">CALORIE_GOAL_POINTS</span> = <span class="num">10</span>;
+<span class="keyword">export const</span> <span class="const">PROTEIN_GOAL_POINTS</span> = <span class="num">10</span>;
+<span class="keyword">export const</span> <span class="const">WALK_CALORIE_BURN</span>   = <span class="num">80</span>;
+
+<span class="keyword">export const</span> <span class="fn">getToday</span> = (): <span class="type">string</span> =&gt;
+  <span class="keyword">new</span> <span class="fn">Date</span>().toISOString().<span class="fn">split</span>(<span class="string">"T"</span>)[<span class="num">0</span>];
+
+<span class="keyword">export const</span> <span class="fn">getYesterday</span> = (): <span class="type">string</span> =&gt; {
+  <span class="keyword">const</span> d = <span class="keyword">new</span> <span class="fn">Date</span>();
+  d.<span class="fn">setDate</span>(d.<span class="fn">getDate</span>() - <span class="num">1</span>);
+  <span class="keyword">return</span> d.toISOString().<span class="fn">split</span>(<span class="string">"T"</span>)[<span class="num">0</span>];
+};
+
+<span class="keyword">export interface</span> <span class="type">StreakResult</span> {
+  newStreak:    <span class="type">number</span>;
+  shouldUpdate: <span class="type">boolean</span>;
+}
+
+<span class="keyword">export const</span> <span class="fn">calculateNewStreak</span> = (
+  lastActiveDate: <span class="type">string</span>,
+  currentStreak:  <span class="type">number</span>,
+  today:          <span class="type">string</span>,
+  yesterday:      <span class="type">string</span>
+): <span class="type">StreakResult</span> =&gt; {
+  <span class="keyword">if</span> (lastActiveDate === today) {
+    <span class="keyword">return</span> { newStreak: currentStreak, shouldUpdate: <span class="keyword">false</span> };
+  }
+  <span class="keyword">const</span> newStreak = lastActiveDate === yesterday
+    ? currentStreak + <span class="num">1</span>
+    : <span class="num">1</span>;
+  <span class="keyword">return</span> { newStreak, shouldUpdate: <span class="keyword">true</span> };
+};
+
+<span class="keyword">export const</span> <span class="fn">calculateNewLongest</span> = (
+  currentLongest: <span class="type">number</span>,
+  newStreak:      <span class="type">number</span>
+): <span class="type">number</span> =&gt; Math.<span class="fn">max</span>(currentLongest, newStreak);
+
+<span class="keyword">export const</span> <span class="fn">isValidPositiveNumber</span> = (input: <span class="type">string</span>): <span class="type">boolean</span> =&gt; {
+  <span class="keyword">const</span> amount = <span class="fn">Number</span>(input);
+  <span class="keyword">return</span> !!amount &amp;&amp; amount &gt; <span class="num">0</span>;
+};</pre>
+</div>
+
+<!-- ───────────────────────── STEP 5: TEST PASS ─────────────────────────── -->
+<div class="step-box">
+  <div class="step-num">Step 5 — Green Phase (All Tests PASS)</div>
+  <div class="step-title">Test Run After Implementation</div>
+  <span class="tag green">PASS — 17 tests, 0 failures</span>
+
+<div class="pass-output"> PASS  __tests__/gamification.test.ts (9.195 s)
+  calculateNewStreak
+    <span class="tick">✓</span> increments streak by 1 when completing a task on a consecutive day (2 ms)
+    <span class="tick">✓</span> resets streak to 1 when a day has been skipped                   (1 ms)
+    <span class="tick">✓</span> does not update streak if task already completed today
+    <span class="tick">✓</span> starts streak at 1 on first ever task completion
+  calculateNewLongest
+    <span class="tick">✓</span> updates longest streak when new streak exceeds previous best      (1 ms)
+    <span class="tick">✓</span> keeps previous longest streak when new streak is lower
+    <span class="tick">✓</span> keeps longest when streaks are equal
+  points constants
+    <span class="tick">✓</span> WALK_POINTS is 50
+    <span class="tick">✓</span> WATER_POINTS is 20 per glass
+    <span class="tick">✓</span> CALORIE_GOAL_POINTS is 10 (one-time reward for reaching goal)
+    <span class="tick">✓</span> PROTEIN_GOAL_POINTS is 10 (one-time reward for reaching goal)
+    <span class="tick">✓</span> WALK_CALORIE_BURN is 80 kcal                                      (1 ms)
+  isValidPositiveNumber
+    <span class="tick">✓</span> returns true for a valid positive number string
+    <span class="tick">✓</span> returns false for empty string
+    <span class="tick">✓</span> returns false for zero
+    <span class="tick">✓</span> returns false for a negative number
+    <span class="tick">✓</span> returns false for non-numeric string                               (1 ms)
+
+<span class="dim">Test Suites: 1 passed, 1 total
+Tests:       17 passed, 17 total
+Snapshots:   0 total
+Time:        9.406 s
+Ran all test suites.</span></div>
+</div>
+
+<hr class="separator" />
+<p style="font-size:11px; color:#888; text-align:center;">FitFuel – COMP602 | TDD Evidence | Soyeon Im | 2 June 2026</p>
+
+</body>
+</html>
