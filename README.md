@@ -175,6 +175,15 @@ Currently at **Sprint 2**.
 - Designed to meet user story requirements for “task reminders”
 - Works within Expo Go without requiring external push notification setup
 
+## 🔹 Account, Friends & Leaderboard Backend (Eilmar)
+
+- Added account creation and login using username/email and password
+- Connected friend requests to the backend so users can send, accept, and decline requests
+- Added email notification when a friend request is sent
+- Added privacy settings to control what information friends can see
+- Linked profile and privacy settings to the logged-in account
+- Updated leaderboard to load users from the backend and rank them by points
+
 ---
 
 # 👥 Team Contribution
@@ -195,6 +204,13 @@ Currently at **Sprint 2**.
 - React Native (Expo)
 - TypeScript
 
+### Backend
+
+- Node.js
+- Express
+- Nodemailer
+- Local JSON storage
+
 ### Storage
 
 - AsyncStorage (Local Persistence)
@@ -203,7 +219,7 @@ Currently at **Sprint 2**.
 
 # 🚧 Future Improvements
 
-- 🔐 User Authentication (Firebase)
+- 🔐 Improved authentication with Firebase
 - ☁️ Cloud database integration
 - 🤖 AI-based nutrition recommendation
 - 🧑‍🤝‍🧑 Real-time social system
@@ -213,7 +229,7 @@ Currently at **Sprint 2**.
 - 🔗 Integration with Apple Health / Google Fit
 - 🔔 Smart activity reminders with customisable frequency and time
 - 🏅 Streak milestone rewards and bonus points
-- 🤝 Friend invitation and live leaderboard
+- 🤝 Real-time friend system and live leaderboard updates
 
 ---
 
