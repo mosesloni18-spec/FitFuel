@@ -175,6 +175,24 @@ Currently at **Sprint 2**.
 - Designed to meet user story requirements for “task reminders”
 - Works within Expo Go without requiring external push notification setup
 
+## 🔹 Routines Page latest features (Lana)
+- Implemented workout routine creation with form validation and persistent storage using AsyncStorage
+- Added support for creating custom workout routines containing multiple exercises
+- Added routine scheduling by day of the week (M, T, W, Th, F, Sa, Su)
+- Implemented routine filtering so workouts only appear on their scheduled days
+- Replaced the static demo calendar with a dynamic calendar based on real dates
+- Added calendar navigation to browse past and future dates
+- Displayed the selected date beneath the Sync Fitness Data button
+- Added a selectable emoji picker for routine customisation
+- Added visual highlighting for the selected emoji to improve user feedback
+- Implemented routine editing functionality using the same interface as routine creation
+- Added routine deletion functionality
+- Added workout progress tracking and completion indicators
+- Added tracking for reps completed, weight used, and time taken for each exercise
+- Added validation and error messages to prevent saving incomplete routine information
+- Removed hardcoded demo routines to support a clean first-time user experience
+- Improved overall usability and navigation within the Routines page
+
 ---
 
 # 👥 Team Contribution
