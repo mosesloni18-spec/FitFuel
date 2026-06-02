@@ -175,17 +175,22 @@ Currently at **Sprint 2**.
 - Designed to meet user story requirements for “task reminders”
 - Works within Expo Go without requiring external push notification setup
 
-<<<<<<< HEAD
 ## 🔹 Account, Friends & Leaderboard Backend (Eilmar)
 
+- Added backend support using Node.js and Express
 - Added account creation and login using username/email and password
+- Added local backend data storage for users, friend requests, and friends list
 - Connected friend requests to the backend so users can send, accept, and decline requests
-- Added email notification when a friend request is sent
+- Added email notification when a friend request is sent using Nodemailer
+- Added incoming friend request display for the logged-in user
+- Added logout / switch account option in Settings
 - Added privacy settings to control what information friends can see
 - Linked profile and privacy settings to the logged-in account
-- Updated leaderboard to load users from the backend and rank them by points
-=======
+- Updated leaderboard to load users from the backend instead of hardcoded names
+- Updated leaderboard to rank users by stored points
+
 ## 🔹 Routines Page latest features (Lana)
+
 - Implemented workout routine creation with form validation and persistent storage using AsyncStorage
 - Added support for creating custom workout routines containing multiple exercises
 - Added routine scheduling by day of the week (M, T, W, Th, F, Sa, Su)
@@ -202,7 +207,6 @@ Currently at **Sprint 2**.
 - Added validation and error messages to prevent saving incomplete routine information
 - Removed hardcoded demo routines to support a clean first-time user experience
 - Improved overall usability and navigation within the Routines page
->>>>>>> 740d51b3c1594b766cdcd29accbcda45efcc8deb
 
 ---
 
