@@ -16,10 +16,17 @@ import {
 const today = new Date().getDate();
 
 // types
+
 type Workout = {
   name: string;
   sets: string;
+
+  targetReps: string;
+
   reps: string;
+  weight: string;
+  time: string;
+
   done: boolean;
 };
 
@@ -27,43 +34,25 @@ type Routine = {
   id: string;
   name: string;
   emoji: string;
+  days: string[];
   workouts: Workout[];
 };
 
-// demo starter routines (NOW WITH EXERCISES so progress shows)
-const initialRoutines: Routine[] = [
-  {
-    id: "1",
-    name: "Arm Day",
-    emoji: "💪",
-    workouts: [
-      { name: "Bicep Curls", sets: "3", reps: "10", done: false },
-      { name: "Tricep Dips", sets: "3", reps: "12", done: false },
-    ],
-  },
-  {
-    id: "2",
-    name: "Leg Day",
-    emoji: "🦵",
-    workouts: [
-      { name: "Squats", sets: "4", reps: "10", done: false },
-      { name: "Lunges", sets: "3", reps: "12", done: false },
-    ],
-  },
-  {
-    id: "3",
-    name: "Full body",
-    emoji: "🏋️",
-    workouts: [
-      { name: "Push Ups", sets: "3", reps: "10", done: false },
-      { name: "Plank", sets: "3", reps: "30s", done: false },
-    ],
-  },
+const weekdayOptions = ["M", "T", "W", "Th", "F", "Sa", "Su"];
+
+const emojiOptions = [
+  "💪",
+  "🦵",
+  "🏋️",
+  "🏃",
+  "🚴",
+  "🧘",
 ];
+
 
 export default function Routines() {
 
-  const [routines, setRoutines] = useState<Routine[]>(initialRoutines);
+  const [routines, setRoutines] = useState<Routine[]>([]);
 
   // calendar state
   const [selectedDay, setSelectedDay] = useState(today);
@@ -72,15 +61,19 @@ export default function Routines() {
   const [showForm, setShowForm] = useState(false);
   const [selectedRoutineId, setSelectedRoutineId] = useState<string | null>(null);
 
+  const [editingRoutineId, setEditingRoutineId] = useState<string | null>(null);
+
   // form data
   const [routineName, setRoutineName] = useState("");
+  const [routineEmoji, setRoutineEmoji] = useState("🏋️");
+  const [routineDays, setRoutineDays] = useState<string[]>([]);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
-  // sync state (for fake fitness sync)
+  // sync state (for fitness sync)
   const [syncing, setSyncing] = useState(false);
 
-  // demo completed days so calendar shows activity
-  const [completedDays, setCompletedDays] = useState<number[]>([22, 24, 26]); 
+  //  completed days so calendar shows activity
+  const [completedDays, setCompletedDays] = useState<number[]>([]);
 
   // load saved routines
   useEffect(() => {
@@ -102,35 +95,121 @@ export default function Routines() {
 
   // open add routine popup (always starts with 1 exercise row)
   const openForm = () => {
+    setRoutineEmoji("🏋️");
+    setRoutineDays([]);
     setShowForm(true);
     setRoutineName("");
-    setWorkouts([{ name: "", sets: "", reps: "", done: false }]);
+    setWorkouts([
+      {
+        name: "",
+        sets: "",
+        targetReps: "",
+
+        reps: "",
+        weight: "",
+        time: "",
+
+        done: false,
+      },
+    ]);  
+    setEditingRoutineId(null);
   };
 
   // add new exercise input row
   const addExercise = () => {
     setWorkouts([
       ...workouts,
-      { name: "", sets: "", reps: "", done: false },
+      {
+        name: "",
+        sets: "",
+        targetReps: "",
+
+        reps: "",
+        weight: "",
+        time: "",
+
+        done: false,
+      }
     ]);
   };
 
-  // save routine
-  const saveRoutine = () => {
-    if (!routineName) return;
-
-    const newRoutine: Routine = {
-      id: Date.now().toString(),
-      name: routineName,
-      emoji: "🏋️",
-      workouts,
+  const toggleDay = (day: string) => {
+      if (routineDays.includes(day)) {
+        setRoutineDays(
+          routineDays.filter(d => d !== day)
+        );
+      } else {
+        setRoutineDays([...routineDays, day]);
+      }
     };
 
-    const updated = [...routines, newRoutine];
-    saveData(updated);
+  // save routine
+  const saveRoutine = () => {
+    if (!routineName.trim()) {
+      Alert.alert(
+        "Missing Information",
+        "Please enter a routine name."
+      );
+      return;
+    }
+
+    if (routineDays.length === 0) {
+      Alert.alert(
+        "Missing Information",
+        "Please choose at least one scheduled day."
+      );
+      return;
+    }
+
+    const incompleteExercise = workouts.find(
+      w =>
+        !w.name.trim() ||
+        !w.sets.trim() ||
+        !w.targetReps.trim()
+    );
+
+    if (incompleteExercise) {
+      Alert.alert(
+        "Missing Information",
+        "Please complete all exercise fields before saving."
+      );
+      return;
+    }
+
+    if (editingRoutineId) {
+      const updated = routines.map(r =>
+        r.id === editingRoutineId
+          ? {
+              ...r,
+              name: routineName,
+              emoji: routineEmoji,
+              days: routineDays,
+              workouts,
+            }
+          : r
+      );
+
+      saveData(updated);
+    } else {
+      const newRoutine: Routine = {
+        id: Date.now().toString(),
+        name: routineName,
+        emoji: routineEmoji,
+        days: routineDays,
+        workouts,
+      };
+
+      const updated = [...routines, newRoutine];
+      saveData(updated);
+    }
+
+    setEditingRoutineId(null);
 
     setRoutineName("");
+    setRoutineEmoji("🏋️");
+    setRoutineDays([]);
     setWorkouts([]);
+
     setShowForm(false);
   };
 
@@ -167,14 +246,24 @@ export default function Routines() {
     setSelectedRoutineId(null);
   };
 
-  // edit routine name
+  // edit routine
   const editRoutine = (id: string) => {
-    Alert.prompt("Edit Routine", "New name:", (text) => {
-      const updated = routines.map(r =>
-        r.id === id ? { ...r, name: text } : r
-      );
-      saveData(updated);
-    });
+    const routine = routines.find(r => r.id === id);
+
+    if (!routine) return;
+
+    setEditingRoutineId(id);
+
+    setRoutineName(routine.name);
+    setRoutineEmoji(routine.emoji);
+    setRoutineDays(routine.days);
+
+    setWorkouts(
+      JSON.parse(JSON.stringify(routine.workouts))
+    );
+
+    setShowForm(true);
+    setSelectedRoutineId(null);
   };
 
   // fake sync feature (for demo)
@@ -202,16 +291,48 @@ export default function Routines() {
   // selected routine (for popup)
   const selectedRoutine = routines.find(r => r.id === selectedRoutineId);
 
-  // fake week for calendar UI
-  const days = [21,22,23,24,25,26,27,28];
+  //real calendar
+  const [calendarOffset, setCalendarOffset] = useState(0);
 
-  // DEMO: show full progress on completed days 
+  const days = Array.from({ length: 15 }, (_, i) => {
+    const date = new Date();
+
+    date.setDate(
+      date.getDate() - 7 + i + calendarOffset
+    );
+
+    return {
+      dayNumber: date.getDate(),
+      date,
+    };
+  });
+
+  const dayMap = ["Su", "M", "T", "W", "Th", "F", "Sa"];
+
+  const selectedDate =
+    days.find(d => d.dayNumber === selectedDay);
+
+  const selectedWeekday =
+    selectedDate
+      ? dayMap[selectedDate.date.getDay()]
+      : "";
+
+
+  // show full progress on completed days 
+  const scheduledRoutines = routines.filter(
+  routine =>
+    routine.days.includes(selectedWeekday)
+  );
+
   const displayRoutines = completedDays.includes(selectedDay)
-    ? routines.map(r => ({
+    ? scheduledRoutines.map(r => ({
         ...r,
-        workouts: r.workouts.map(w => ({ ...w, done: true })),
+        workouts: r.workouts.map(w => ({
+          ...w,
+          done: true,
+        })),
       }))
-    : routines;
+    : scheduledRoutines;
 
   // render each routine card
   const renderItem = ({ item }: { item: Routine }) => {
@@ -242,32 +363,59 @@ export default function Routines() {
     <ScrollView style={styles.container}>
 
       {/* -------- CALENDAR -------- */}
-      <View style={styles.daysRow}>
-        {days.map(day => {
-          const isToday = day === today;
-          const isSelected = day === selectedDay;
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          marginBottom: 20,
+        }}
+      > 
+      <TouchableOpacity
+        onPress={() => setCalendarOffset(calendarOffset - 7)}
+      >
+        <Text style={{ fontSize: 20 }}>◀</Text>
+      </TouchableOpacity>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+        >
+          {days.map(day => {
+          const isToday =
+            day.dayNumber === new Date().getDate();
+          const isSelected =
+            day.dayNumber === selectedDay;
 
           return (
             <TouchableOpacity
-              key={day}
-              onPress={() => setSelectedDay(day)}
+              key={day.date.toISOString()}
+              onPress={() => setSelectedDay(day.dayNumber)}
               style={[
                 styles.day,
-                completedDays.includes(day) && styles.completedDay,
+                !isToday &&
+                  completedDays.includes(day.dayNumber) &&
+                  styles.completedDay,
                 isToday && styles.todayDay,
                 isSelected && styles.activeDay
               ]}
             >
               <Text style={[
-                completedDays.includes(day) && { color: "white" },
+                completedDays.includes(day.dayNumber) && { color: "white" },
                 isToday && styles.todayText,
                 isSelected && { color: "white" }
               ]}>
-                {day}
+                {day.dayNumber}
               </Text>
             </TouchableOpacity>
           );
         })}
+        </ScrollView>
+        <TouchableOpacity
+          onPress={() => setCalendarOffset(calendarOffset + 7)}
+        >
+          <Text style={{ fontSize: 20 }}>▶</Text>
+        </TouchableOpacity>
       </View>
 
       {/* -------- SYNC BUTTON -------- */}
@@ -276,6 +424,27 @@ export default function Routines() {
           {syncing ? "Syncing..." : "Sync Fitness Data"}
         </Text>
       </TouchableOpacity>
+
+      {/* day and date display */}
+      <Text
+        style={{
+          textAlign: "center",
+          marginBottom: 15,
+          color: "#666",
+          fontWeight: "600",
+        }}
+      >
+        {
+          days.find(d => d.dayNumber === selectedDay)?.date.toLocaleDateString(
+            "en-NZ",
+            {
+              weekday: "long",
+              day: "numeric",
+              month: "long",
+            }
+          )
+        }
+      </Text>
 
       {/* routines */}
       <FlatList
@@ -308,13 +477,84 @@ export default function Routines() {
               onChangeText={setRoutineName}
               style={styles.fullInput}
             />
+            <Text style={styles.label}>
+              Schedule Days
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                flexWrap: "wrap",
+                marginBottom: 10,
+              }}
+            >
+              {weekdayOptions.map(day => (
+                <TouchableOpacity
+                  key={day}
+                  onPress={() => toggleDay(day)}
+                  style={{
+                    padding: 8,
+                    margin: 3,
+                    borderRadius: 8,
+                    backgroundColor:
+                      routineDays.includes(day)
+                        ? "#2AA7B8"
+                        : "#eee",
+                  }}
+                >
+                  <Text
+                    style={{
+                      color:
+                        routineDays.includes(day)
+                          ? "white"
+                          : "black",
+                    }}
+                  >
+                    {day}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={styles.label}>
+              Choose Icon
+            </Text>
+
+            <View
+              style={{
+                flexDirection: "row",
+                marginBottom: 10,
+              }}
+            >
+              {emojiOptions.map(icon => (
+                <TouchableOpacity
+                  key={icon}
+                  onPress={() => setRoutineEmoji(icon)}
+                  style={{
+                    marginRight: 10,
+                    padding: 8,
+                    borderRadius: 10,
+                    borderWidth: routineEmoji === icon ? 2 : 0,
+                    borderColor: "#2AA7B8",
+                    backgroundColor:
+                      routineEmoji === icon
+                        ? "#DFF6FA"
+                        : "transparent",
+                  }}
+                >
+                  <Text style={{ fontSize: 26 }}>
+                    {icon}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
             <View style={{ height: 12 }} />
 
             <View style={styles.inputsRow}>
               <Text style={styles.labelExercise}>Exercise</Text>
               <Text style={styles.labelSmall}>Sets</Text>
-              <Text style={styles.labelSmall}>Reps</Text>
+              <Text style={styles.labelSmall}>Target Reps</Text>
             </View>
 
             {workouts.map((w, i) => (
@@ -341,10 +581,10 @@ export default function Routines() {
                 />
                 <TextInput
                   placeholder="Reps"
-                  value={w.reps}
+                  value={w.targetReps}
                   onChangeText={(t) => {
                     const updated = [...workouts];
-                    updated[i].reps = t;
+                    updated[i].targetReps = t;
                     setWorkouts(updated);
                   }}
                   style={styles.smallInput}
@@ -383,9 +623,100 @@ export default function Routines() {
                 style={styles.exerciseRow}
                 onPress={() => toggleWorkout(selectedRoutine.id, i)}
               >
-                <Text style={styles.exerciseText}>
-                  {w.done ? "✅" : "⬜"} {w.name} ({w.sets}x{w.reps})
-                </Text>
+                <View>
+                  <Text style={styles.exerciseText}>
+                    {w.done ? "✅" : "⬜"} {w.name}
+                  </Text>
+
+                  <Text>
+                    Target: {w.sets} x {w.targetReps}
+                  </Text>
+
+                  <TextInput
+                    placeholder="Reps completed"
+                    value={w.reps}
+                    //UX textbox
+                    style={{
+                    borderWidth: 1,
+                    borderColor: "#ccc",
+                    borderRadius: 8,
+                    padding: 8,
+                    marginTop: 6,
+                    marginBottom: 6,
+                    }}
+                    keyboardType="numeric"
+                    onChangeText={(text) => {
+                      const updated = [...routines];
+
+                      const routineIndex =
+                        updated.findIndex(
+                          r => r.id === selectedRoutine?.id
+                        );
+
+                      updated[routineIndex]
+                        .workouts[i]
+                        .reps = text;
+
+                      saveData(updated);
+                    }}
+                  />
+
+                  <TextInput
+                    placeholder="Weight used"
+                    value={w.weight}
+                    //UX textbox
+                    style={{
+                    borderWidth: 1,
+                    borderColor: "#ccc",
+                    borderRadius: 8,
+                    padding: 8,
+                    marginTop: 6,
+                    marginBottom: 6,
+                    }}
+                    onChangeText={(text) => {
+                      const updated = [...routines];
+
+                      const routineIndex =
+                        updated.findIndex(
+                          r => r.id === selectedRoutine?.id
+                        );
+
+                      updated[routineIndex]
+                        .workouts[i]
+                        .weight = text;
+
+                      saveData(updated);
+                    }}
+                  />
+
+                  <TextInput
+                    placeholder="Time"
+                    value={w.time}
+                    //ux textbox
+                    style={{
+                      borderWidth: 1,
+                      borderColor: "#ccc",
+                      borderRadius: 8,
+                      padding: 8,
+                      marginTop: 6,
+                      marginBottom: 6,
+                    }}
+                    onChangeText={(text) => {
+                      const updated = [...routines];
+
+                      const routineIndex =
+                        updated.findIndex(
+                          r => r.id === selectedRoutine?.id
+                        );
+
+                      updated[routineIndex]
+                        .workouts[i]
+                        .time = text;
+
+                      saveData(updated);
+                    }}
+                  />
+                </View>
               </TouchableOpacity>
             ))}
 
